@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://qddmj.cn').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Targe Net、Experience replay作为DQN最基础的改进，它们背后的理论是怎样的？这些措施能够生效是否还有其他的更深层的原因呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Deep Q-Learning 系列论文漫谈(二) 从Target Net和Experience replay聊起">
+<meta property="og:url" content="https://qddmj.cn/dqn2.htm">
+<meta property="og:site_name" content="Our Home">
+<meta property="og:description" content="Targe Net、Experience replay作为DQN最基础的改进，它们背后的理论是怎样的？这些措施能够生效是否还有其他的更深层的原因呢？">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://qddmj.cn/images/dqn2/exp_replay.png">
+<meta property="og:image" content="https://qddmj.cn/images/dqn2/mu_move.png">
+<meta property="article:published_time" content="2020-01-17T15:40:05.000Z">
+<meta property="article:modified_time" content="2020-06-08T09:14:58.920Z">
+<meta property="article:author" content="Captain Qiu">
+<meta property="article:tag" content="DQN">
+<meta property="article:tag" content="reinforcement learning">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="Q-Learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qddmj.cn/images/dqn2/exp_replay.png">
+
+<link rel="canonical" href="https://qddmj.cn/dqn2.htm">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Deep Q-Learning 系列论文漫谈(二) 从Target Net和Experience replay聊起 | Our Home</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?417b0be270629c126f6db2d0dc5eb616";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Our Home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">learning room</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://qddmj.cn/dqn2.htm">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Captain Qiu">
+      <meta itemprop="description" content="For my wife">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Our Home">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Deep Q-Learning 系列论文漫谈(二) 从Target Net和Experience replay聊起
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-01-17 23:40:05" itemprop="dateCreated datePublished" datetime="2020-01-17T23:40:05+08:00">2020-01-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-06-08 17:14:58" itemprop="dateModified" datetime="2020-06-08T17:14:58+08:00">2020-06-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Deep-Q-Learning/" itemprop="url" rel="index">
+                    <span itemprop="name">Deep Q-Learning</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/dqn2.htm" class="post-meta-item leancloud_visitors" data-flag-title="Deep Q-Learning 系列论文漫谈(二) 从Target Net和Experience replay聊起" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/dqn2.htm#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/dqn2.htm" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <div class="post-description">Targe Net、Experience replay作为DQN最基础的改进，它们背后的理论是怎样的？这些措施能够生效是否还有其他的更深层的原因呢？</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Target-Net-是什么"><a href="#Target-Net-是什么" class="headerlink" title="Target Net 是什么"></a>Target Net 是什么</h2><p>要落俗套，首先解释下论文中的Target Net是做什么的。抄袭下论文的公式：</p>
+<script type="math/tex; mode=display">
+L_i(\theta_i)=E_{(s,a,r,s')\sim U(D)}[(r+\gamma\max_{a'}Q(s',a';\theta_{i}^{-})-Q(s,a;\theta_i))^2]  \tag{1}</script><p>这里的 $\theta^-$就是Target Net的参数。整个DQN模型存在两个独立的网络，分别叫做<br>普通Q网络，就是我们要优化的网络，我们会从它导出最优策略，普通Q网络的参数是$\theta$。另一个就是Target Net，它的是在计算TD误差时被使用的，而TD误差前两项的和就是TargetValue，因此这个网络被称为Target Net。两个网络是结构相同，参数独立的。只不过会每隔C个迭代步骤，就将$\theta$同步到$\theta^-$，没错,就是直接复制过去。</p>
+<h2 id="Target-Net-作用是什么"><a href="#Target-Net-作用是什么" class="headerlink" title="Target Net 作用是什么"></a>Target Net 作用是什么</h2><p>论文作者写了，为了提高训练的稳定性。为什么能提高稳定性，不知道。作者说了一个不太清楚的理由:当提升 $Q(s<em>{t},a</em>{t})$ 的时候，往往也会引起 $Q(s_{t+1},a)$ (对所有的a)的提升。这样一来，会引起目标值 $y_i$ 的提升，从而进一步导致网络可能不收敛。作者并没有详细阐述为什么DQN会引起这样的问题，其实也揭示了在强化学习领域，<strong>Function Approximation</strong>有诸多难以理论证明的点。</p>
+<p>在搜索网上对Target Net的解释，大体就是从提高稳定性进行说明，比较有代表性的观点是，仔细考察公式(1)，如果没有TargetNet，也就是计算TargetValue和优化网络都是一个网络$\theta<em>i$，假设$s,a$计算出的$Q(s,a)=1$ 而$TargetValue=2$，那么使用梯度下降法，让Q向TargetValue逼近，没有问题，这个时候参数$\theta</em>{i+1}$就此改变了，当同样的$s,a$再次参与训练时，由于$\theta_{i+1}$的改变,$TargetValue$也不一样了，变成了-1。那么网络又会让Q向-1逼近。引用那个朋友的话说，整个过程好像是在“追着一个移动的目标在跑，怎么都追不上”。因此会引起训练的不稳定。</p>
+<p>第一次计算样本$(s,a,s’,r)$</p>
+<script type="math/tex; mode=display">
+Q(s,a;\theta_i)=1，r+\gamma\max_{a'}Q(s',a';\theta_{i})=2</script><p>第二次计算同样的样本$(s,a,s’,r)$</p>
+<script type="math/tex; mode=display">
+Q(s,a;\theta_{i+1})=1.8，r+\gamma\max_{a'}Q(s',a';\theta_{i+1})=-1</script><p>如果迭代一直持续下去，可能会因为老追不上目标而导致不收敛，或者收敛过程不稳定。</p>
+<p>在《Foundations of Deep Reinforcement Learning: Theory and Practice in Python》中关于Target Net有进一步说明，它目的就是旨在提高训练稳定性，至于为啥，因为神经网络是脱胎于监督学习理论的，监督学习前提就是样本独立同分布，刚开始样本是$(x=1,y=2)$，更新过一次参数后，变成了$(x=1,y=-1)$，这咋拟合？y要是满足一个正态分布还好说，y要是一个乱七八糟的分布，和参数还强相关，那就有可能会引起训练结果不收敛。“This “moving target” can destabilize training because it makes it much less clear what values a network should be trying to approach”。这里解释的更加有道理了些，就是<strong>样本分布变化</strong>可能会引起神经网络的训练的不稳定。</p>
+<p>于是作者所说的、和大家说的这些理由不尽相同，谁更接近真相呢？</p>
+<h2 id="Experience-replay-是什么"><a href="#Experience-replay-是什么" class="headerlink" title="Experience replay 是什么"></a>Experience replay 是什么</h2><p>公式(1)中的 $(s,a,r,s’)\sim U(D)$ 表示样本是从一个Buffer(也叫Memory)中均匀抽样(Uniform)出来的：</p>
+<p><img src="/images/dqn2/exp_replay.png"></p>
+<p>&nbsp;</p>
+<p>在算法运行过程中，每次根据行为策略(behavior policy)$b$执行动作 $a$ 后，我们都会生成一个上图所示的四元组，放入Memory中去。每次训练更新 $\theta$ 的时候，就从Memory中均匀随机采样一个样本。</p>
+<h3 id="Experience-replay-作用是什么"><a href="#Experience-replay-作用是什么" class="headerlink" title="Experience replay 作用是什么"></a>Experience replay 作用是什么</h3><p>上一篇文章中提到，作者在论文中写了三个优点:</p>
+<ol>
+<li><p>让“有用”的样本得到更多的训练次数，提高样本的使用效率。</p>
+</li>
+<li><p>打破连续采样的样本之间的“correlations”，可以减少训练时的方差。</p>
+</li>
+<li><p>由于on-policy的学习模式使然(严格来说DQN是 off-policy，这里大致上是一样的)，模型的参数会决定下一时刻的样本分布，这样会让模型陷入比较糟糕的局部最优，使用Experience replay可以减轻这种效应。</p>
+</li>
+</ol>
+<p>第一点好理解，样本被存入Memory，有可能在几次采样中都被捞出来训练，这样“好的”样本训练次数增加了，可以加速收敛。</p>
+<p>第二点是说，由于reinforcement learning的采样方式，样本间存在很强的关联关系。因为毕竟是MDP模型，前后间的关系必然是紧密的，但我们的模型是神经网络，要求样本之间是独立同分布，不符合这个前提的数据集训练起来方差很大，收敛比较困难。</p>
+<p>举个简单的例子，CartPole摆锤小车场景，采样两个完整episode的轨迹。其中一个是摆锤往左边倒地结束，另一个是摆锤往右边倒地结束。如果按照轨迹原有的样本顺序学习，在学习第一条轨迹的时候，会一直更新向左倒的状态，然后学习下一条的时候，又会一直更新向右倒的状态，这样连续更新同一个状态(或者邻域)的做法很容易让网络进入局部最小。我个人理解作者所说的”correlations”就是这样的。</p>
+<p>第三点其实更具体些，采样分布 $\mu$ 是策略的函数，当策略定的时候，采样分布也确定了，如果是on-policy模式，策略一直在迭代更新，那么 $\mu$ 也一直在变，也就是样本的分布一直在变。</p>
+<p><img src="/images/dqn2/mu_move.png"></p>
+<p>&nbsp;</p>
+<p>其实第二点和第三点说的都是样本的采样分布问题，也就是i.i.d条件中的是否独立、是否同分布，而Experience replay的作用就是提高独立性，减弱采样分布漂移。</p>
+<p>注意，上面的结论是由作者自己说的优点诱导出来的，这只是它起作用的可能原因。</p>
+<h2 id="Function-Approximation带来的问题"><a href="#Function-Approximation带来的问题" class="headerlink" title="Function Approximation带来的问题"></a>Function Approximation带来的问题</h2><p>经过上面的讨论，我们发现Expeirence Replay和TargetNet的作用似乎都与采样分布漂移有关，为什么DQN会有这些问题呢，难道之前的Q-Learning就没有吗？还真没有，Q-Learning已经被严格证明了是可以很好收敛到最优策略的，因此它并不存在这些棘手的问题。所以我们需要考察DQN究竟有什么不同，导致它存在稳定性和收敛性上的问题。</p>
+<p>在《RLbook2018》的11.3节中sutton提到，如果涉及到以下三个条件，那么基于值函数的迭代方法就不确保收敛，sutton将其称为”致命三要素” <strong>(deadly triad)</strong>:</p>
+<ol>
+<li><p>Function Approximation 函数近似。</p>
+</li>
+<li><p>Bootstrapping 自助法。使用动态规划或者TD方法，而不是使用完整轨迹的reward。</p>
+</li>
+<li><p>Off-policy training 离策略的训练方式。训练用的采样分布不是由目标策略产生的，而且一直在变化。</p>
+</li>
+</ol>
+<p>至于为什么叫<strong>deadly triad</strong>，我个人认为是因为这三个条件大大增加了理论推导的复杂度，之前在简单条件下能够收敛的证明在更复杂的情况下不能直接使用，因此暂时没有办法给出严格的理论证明。如果增加一些假设条件进行仔细讨论，则有可能在某些情况下保证收敛到最优解。比如最近有人在研究使用神经网络近似情况下的收敛性，附带了DQN的很多其他特性，结论是在一些较弱的假设下，DQN是收敛的，喜欢数学的朋友可以看一看(<a href="https://arxiv.org/abs/1901.00137" target="_blank" rel="noopener">A Theoretical Analysis of Deep Q-Learning Zhuora Yang, Yuchen Xie, Zhaoran Wang 2019</a>)。</p>
+<p>说回来，不收敛也可以翻译为不稳定，因此DQN的不稳定也应该逃不出这三个条件(target moving可以算作是Function Approximation的副作用之一)。</p>
+<p>其中上节关于on-policy和这里off-policy的说法矛盾吗？其实不矛盾，sutton所说的off-policy是指让强化学习问题变得更复杂，更难以分析，因此不确保收敛，属于更抽象的层次。而上一节说的on-policy可能造成训练不稳定是论文作者针对DQN具体问题的猜测，他们完全是两个维度。</p>
+<p>既然我们说不清楚这三个条件影响的理论推导，那我们能不能通过实验的方式搞清楚DQN所做的增加稳定性、提升性能的措施分别起到了多大的作用呢？也许在理论暂时没有出来的时候，严格且清晰的实验能够辅助我们得到一些直观的结论。</p>
+<p>既然能想到就一定有人做过，有一篇论文对DQN进行了全方位的实验分析，包括Function Approximation造成的误差、target moving造成的误差、采样分布偏移造成的误差、采样本身带来的误差等等。这篇论文没有给出理论证明，仅仅通过实验结果做了直观的分析，很适合我们的主题。后面我们将会逐步讨论这篇论文。</p>
+<h2 id="误差来源"><a href="#误差来源" class="headerlink" title="误差来源"></a>误差来源</h2><p>我个人将DQN的误差分为以下几类：</p>
+<ul>
+<li>函数近似误差:由Function Approx引起的投影误差、投影贝尔曼误差等等。</li>
+<li>过拟合</li>
+<li>采样分布漂移</li>
+<li>采样误差</li>
+<li>Target moving</li>
+<li>最大化偏差(Maximization Bias)</li>
+</ul>
+<p>这是一个很大的主题，我在后面分两章和大家讨论，首先分析由函数近似引起的投影误差。</p>
+<p><a href="https://qddmj.cn/dqn3.htm/">第三章 Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差</a></p>
+<p>&nbsp;<br>&nbsp;<br>&nbsp;<br>&nbsp;</p>
+<blockquote>
+<p>在写博客之前不觉得，以为周更都是小意思。现在发现双周更新都写不出来，要写好一篇技术文档，是很考验人的，光自己弄明白还不行，得让其他人也能看明白，尤其是当你觉得你明白了，但是讲不出来的时候就会发现，你其实还是没明白，然后又是一顿找论文、学习，直到确实触及到你知识的盲区，才算罢休。每写一次技术博客的过程，就是给自己解答疑惑的过程，希望能够坚持下去。能看到这篇文章的朋友，也衷心希望你能够坚持一件事情做下去，最后总会有收获。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DQN/" rel="tag"># DQN</a>
+              <a href="/tags/reinforcement-learning/" rel="tag"># reinforcement learning</a>
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/Q-Learning/" rel="tag"># Q-Learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/dqn.htm" rel="prev" title="Deep Q-Learning 系列论文漫谈(一) 从Q-Learning到DQN">
+      <i class="fa fa-chevron-left"></i> Deep Q-Learning 系列论文漫谈(一) 从Q-Learning到DQN
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/dqn3.htm" rel="next" title="Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差">
+      Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Target-Net-是什么"><span class="nav-number">1.</span> <span class="nav-text">Target Net 是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Target-Net-作用是什么"><span class="nav-number">2.</span> <span class="nav-text">Target Net 作用是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experience-replay-是什么"><span class="nav-number">3.</span> <span class="nav-text">Experience replay 是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Experience-replay-作用是什么"><span class="nav-number">3.1.</span> <span class="nav-text">Experience replay 作用是什么</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Function-Approximation带来的问题"><span class="nav-number">4.</span> <span class="nav-text">Function Approximation带来的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#误差来源"><span class="nav-number">5.</span> <span class="nav-text">误差来源</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Captain Qiu</p>
+  <div class="site-description" itemprop="description">For my wife</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">蜀ICP备20002327号-1 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Captain Qiu</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1278555605&web_id=1278555605"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#valine-comments',
+      verify: false,
+      notify: false,
+      appId: 'PaC0k9h1K6lYPaeBm5sUJyuE-gzGzoHsz',
+      appKey: 'KSWkBrR5jaojJanxsmjtbpSS',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: true,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

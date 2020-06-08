@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://qddmj.cn').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="把DQN的误差和减少误差的措施放在一起看，主要分享论文 Diagnosing Bottlenecks in Deep Q-learning Algorithms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Deep Q-Learning 系列论文漫谈(四) 错综复杂的误差(下)-误差汇总">
+<meta property="og:url" content="https://qddmj.cn/dqn4.htm">
+<meta property="og:site_name" content="Our Home">
+<meta property="og:description" content="把DQN的误差和减少误差的措施放在一起看，主要分享论文 Diagnosing Bottlenecks in Deep Q-learning Algorithms">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://qddmj.cn/images/dqn4/alg.png">
+<meta property="og:image" content="https://qddmj.cn/images/dqn4/figure1.png">
+<meta property="og:image" content="https://qddmj.cn/images/dqn4/figure12.png">
+<meta property="og:image" content="https://qddmj.cn/images/dqn4/figure7.png">
+<meta property="og:image" content="https://qddmj.cn/images/dqn4/figure9.png">
+<meta property="article:published_time" content="2020-02-07T14:19:05.000Z">
+<meta property="article:modified_time" content="2020-06-08T09:14:58.920Z">
+<meta property="article:author" content="Captain Qiu">
+<meta property="article:tag" content="DQN">
+<meta property="article:tag" content="reinforcement learning">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="Q-Learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qddmj.cn/images/dqn4/alg.png">
+
+<link rel="canonical" href="https://qddmj.cn/dqn4.htm">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Deep Q-Learning 系列论文漫谈(四) 错综复杂的误差(下)-误差汇总 | Our Home</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?417b0be270629c126f6db2d0dc5eb616";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Our Home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">learning room</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://qddmj.cn/dqn4.htm">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Captain Qiu">
+      <meta itemprop="description" content="For my wife">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Our Home">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Deep Q-Learning 系列论文漫谈(四) 错综复杂的误差(下)-误差汇总
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-07 22:19:05" itemprop="dateCreated datePublished" datetime="2020-02-07T22:19:05+08:00">2020-02-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-06-08 17:14:58" itemprop="dateModified" datetime="2020-06-08T17:14:58+08:00">2020-06-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Deep-Q-Learning/" itemprop="url" rel="index">
+                    <span itemprop="name">Deep Q-Learning</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/dqn4.htm" class="post-meta-item leancloud_visitors" data-flag-title="Deep Q-Learning 系列论文漫谈(四) 错综复杂的误差(下)-误差汇总" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/dqn4.htm#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/dqn4.htm" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <div class="post-description">把DQN的误差和减少误差的措施放在一起看，主要分享论文 Diagnosing Bottlenecks in Deep Q-learning Algorithms</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>上一章了解了投影误差后，我们可以将所有的误差、所有的措施放在一起看，分析DQN中所做的那些措施对哪些误差是有减少的。Diagnosing Bottlenecks in Deep Q-learning Algorithms 这篇论文很好的满足了我们的需求，这篇文章是真正的“重实操轻理论”，既然理论难以分析，先用实验找出问题也很好啊。</p>
+<h2 id="我们在意的几个问题"><a href="#我们在意的几个问题" class="headerlink" title="我们在意的几个问题"></a>我们在意的几个问题</h2><h3 id="1-Function-approximation-对收敛性的影响是什么？"><a href="#1-Function-approximation-对收敛性的影响是什么？" class="headerlink" title="1.Function approximation 对收敛性的影响是什么？"></a>1.Function approximation 对收敛性的影响是什么？</h3><p>结合上一章中所讲的投影算子和Bellman算子，函数近似会造成Value Error(VE)，论文中叫做投影误差，并且经过实验发现，模型容量越大，VE会越小，并且在DQN中，很少出现不收敛的情况，大概只有0.9%的实验不收敛。</p>
+<h3 id="2-采样误差-sampling-error-和过拟合对模型的影响是什么？"><a href="#2-采样误差-sampling-error-和过拟合对模型的影响是什么？" class="headerlink" title="2.采样误差(sampling error)和过拟合对模型的影响是什么？"></a>2.采样误差(sampling error)和过拟合对模型的影响是什么？</h3><p>Q-learning是要用样本去评估Q函数的，既然采样就会有采样误差，论文认为<strong>采样误差会导致过拟合</strong>，这个观点和第二章中experience replay的作用中所说的有些相似，当采样和训练的样本过于集中在某个状态或邻域的时候，会引起过拟合。怎么量化过拟合程度呢？论文使用了两个指标，一个是最后学习出来的模型的效果:在学习好的策略下，得到的归一化总收益。二个是学习模型迭代过程中的验证集损失(validation losses)，因为验证集损失和过拟合是存在关联关系的。</p>
+<h3 id="3-分布漂移-distribution-shift-和moving-target对模型的影响是什么？"><a href="#3-分布漂移-distribution-shift-和moving-target对模型的影响是什么？" class="headerlink" title="3.分布漂移(distribution shift)和moving target对模型的影响是什么？"></a>3.分布漂移(distribution shift)和moving target对模型的影响是什么？</h3><p>这个问题直接对应DQN的两个措施，Target Net和experience replay。在DQN2015论文中，作者认为采样分布的变化和moving target是训练不稳定的来源之一。但令人惊奇的的是，这篇文章的实验结果表明，<strong>分布漂移和moving target与模型的性能降低无关，甚至有些漂移很大的模型表现常常很好。</strong></p>
+<h3 id="4-最好的采样分布是什么-What-is-the-best-sampling-or-weighting-distribution"><a href="#4-最好的采样分布是什么-What-is-the-best-sampling-or-weighting-distribution" class="headerlink" title="4. 最好的采样分布是什么? (What is the best sampling or weighting distribution?)"></a>4. 最好的采样分布是什么? (What is the best sampling or weighting distribution?)</h3><p>既然分布漂移和性能有关，那么另一问题就是，选择什么分布是最好的，这里最好不仅包括收敛性，也包括最大化学习速率。结论同样令人惊奇，在之前的研究中认为，on-policy产生的样本要优于off-policy产生的样本，因为on-policy的采样分布漂移更小，但是这篇论文通过实验说明了on-policy产生的采样分布并不总是合适，<strong>表现最好的采样分布是high-entropy的，就是宽边界，能够覆盖尽可能广的状态。</strong></p>
+<p>这篇文章围绕这四个问题进行实验，总的看来，涉及到函数近似、过拟合、采样分布、moving target、分布漂移这几个因素，考虑还是比较全面的。</p>
+<h2 id="Preliminaries"><a href="#Preliminaries" class="headerlink" title="Preliminaries"></a>Preliminaries</h2><p>论文在这写了些基本的符号说明，我觉得比较有意思的是作者对函数近似不保证收敛的解释，促使我去找了关于值迭代收敛的证明，受益匪浅。论文中用$\cal T$表示针对Q函数的Bellman算子。</p>
+<p>我们首先看看动态规划的值迭代方程:</p>
+<script type="math/tex; mode=display">
+({\cal T}Q)(s,a)=R(s,a)+\gamma \Bbb E_{s' \sim p(s'|s,a)}[V(s')]  \\
+V(s)=\max_{a'}Q(s,a')</script><p>论文说Bellman backup算子$\cal T$ 在无限范数($L-\infty$)下是 $\gamma$-contraction的，可以保证收敛到不动点$Q^*$ 。我查找了一些资料，只找到了关于值函数V(s)的收敛证明，虽然也是用无穷范数下的$\gamma$-contraction证明的，但还是差点意思，知道的朋友可以不吝赐教。</p>
+<p>表格型的值迭代是可以收敛的，$Q^{t+1}\leftarrow{\cal T }Q^t$，如果加上投影算子：$Q^{t+1}\leftarrow \Pi_\pi({\cal T }Q^t)$ 就没有保证了，作者理由是投影算子是$L-2$范数，原来在无穷范数下成立的结论不一定成立。</p>
+<p>这里算是挖个坑，后面有空能详细讲讲就再写一章。</p>
+<h2 id="实验步骤"><a href="#实验步骤" class="headerlink" title="实验步骤"></a>实验步骤</h2><p>论文要验证这么多因素带来的影响，一定要控制变量，比如比较分布漂移影响时，就要去除采样误差。论文中使用了三种FQI(fitted Q-iteration)，每一种都控制了一些变化因素。三种算法如下所示：</p>
+<p><img src="/images/dqn4/alg.png"></p>
+<p>&nbsp;</p>
+<p>三种算法都是Q-iteration，只不过控制了一些条件而已。其中Exact-FQI计算$\cal TQ$用的就是值函数的真实期望，因为Exact-FQI前提是已知了转移概率$p(s’|s,a)$，所以图中说的是在所有状态下去计算，就是期望。由于使用真实期望计算，因此这个算法完全消除了采样误差，我们可以用这个算法来探索分布漂移、函数近似、收敛性等指标。</p>
+<blockquote>
+<p>既然完全不采样了，那如何比较采样分布漂移呢?论文使用的方法是在损失函数那使用采样分布加权，通过这种方法影响模型的训练，使用不同的分布得到不同的训练结果进行比较。</p>
+</blockquote>
+<p>另外两个FQI算法更具体更简单一些，看论文即可，主要用来评价采样误差、过拟合、还有replay buffer的容量等因素的影响。</p>
+<p>实验涉及到的采样分布列出了几种领域中常用的，Uniform、Random、Prioritized Replay、Replay、by on-Policy、by Optimal Policy。</p>
+<p>实验用的领域模型是常见的Cliffwalk、 discretized Pendulum 、 Mountain Car等，这里没有什么特别要说的。</p>
+<p>函数近似使用的是两层ReLu神经网络，参数(N,N)表示它的容量。</p>
+<h2 id="实验结果分析"><a href="#实验结果分析" class="headerlink" title="实验结果分析"></a>实验结果分析</h2><p>论文一共做了十来个实验，详细的可以看论文的描述，我有几个比较感兴趣的实验和大家一起讨论下。</p>
+<h3 id="1-Function-Approximation-and-Convergence"><a href="#1-Function-Approximation-and-Convergence" class="headerlink" title="1.Function Approximation and Convergence"></a>1.Function Approximation and Convergence</h3><p>首先是我们最关心的函数近似对收敛性的影响，也就是我们上一章详细讲的投影误差相关的内容。这个实验使用Exact-FQI算法，在固定采样分布(均匀分布)的情况下，测试了不同容量的模型的Project $Q^*$ Error 和 FQI $Q^*$ Error。</p>
+<p><img src="/images/dqn4/figure1.png"></p>
+<p>&nbsp;</p>
+<p>第三章做的铺垫，就是为了这个图。Project $Q^*$ Error就是对应上一章里我们说的VE($\Pi v<em>\pi$ 和 $v</em>\pi$ 之间的距离)，FQI $Q^*$ Error对应上一章里的TD固定点 $w<em>{TD}$ 和 $v</em>\pi$ 之间的距离。</p>
+<p>Project $Q^*$ Error反映了模型本身的近似能力，如果这个值很大，说明模型容量不够。如果模型理论上能找到的最好的点与真实值函数的距离都很大，模型最后一定是欠拟合的，不收敛。</p>
+<p>FQI $Q^*$ Error反映的是模型使用FQI算法得到的解与真实值间的距离，上一章中说过，这点是使用Bellman算子迭代得到的不动点，它很有可能不是平面内最优的。这个误差一定大于VE。</p>
+<p>图中用于对比的Tabular是表格型模型，完全没有误差。很明显，容量越大的模型，两个误差都越小，并且模型的效果也越好。现象很容易解释，在没有过拟合的风险(使用均匀采样加权)的情况下，模型的拟合能力变强了。</p>
+<h3 id="2-Sampling-Error-and-Overfitting"><a href="#2-Sampling-Error-and-Overfitting" class="headerlink" title="2.Sampling Error and Overfitting"></a>2.Sampling Error and Overfitting</h3><p>这个实验比较易懂，我们固定模型，如果每次迭代使用的样本过少，那么就会引起模型的过拟合，现象就是验证集误差变大，模型效果变差。另外使用replay和early stop方法可以减缓过拟合现象。</p>
+<h3 id="3-Non-Stationarity-moving-target-and-distribution-shift"><a href="#3-Non-Stationarity-moving-target-and-distribution-shift" class="headerlink" title="3.Non-Stationarity(moving target and distribution shift)"></a>3.Non-Stationarity(moving target and distribution shift)</h3><p>这个也是我们重点关注的实验，在第二章我们讨论了Target Net和Experience replay这两个措施的作用，这里的实验更直观一些，得到的结论也和我们想象的不太一样。</p>
+<p>首先看moving target 的影响实验。怎么控制moving target呢，论文使用$\alpha-smoothed$ Bellman backup，来控制:</p>
+<script type="math/tex; mode=display">
+{\cal T}^\alpha Q=\alpha{\cal T}Q+(1-\alpha)Q</script><p>每次更新不再以整个${\cal T}Q$为目标，而是加入了平滑参数$\alpha$，当$\alpha=1$时，就是”hard”更新，当$\alpha=0$时是完全不更新。试图用这种方式削弱moving target的影响，$\alpha$越小，每次更新的幅度越小，moving target的影响也就越小。</p>
+<p>论文对比了不同容量的模型在不同平滑参数下的误差和性能，结果图如下：</p>
+<p><img src="/images/dqn4/figure12.png"></p>
+<p>&nbsp;</p>
+<p>在模型容量比较大的情况下，moving target基本没有影响，直接用hard更新就可以了，学习还效率更高。在模型容量小的时候（或者说问题较为困难的时候），soft更新优势更明显，可以说这种情况下moving target的影响较大。另一个角度是，当bellman error明显很大的时候，就需要减缓更新速率。</p>
+<p>接着我们看distribution-shift带来的影响。这次实验使用Exact-FQI，在其他条件相同的情况下，替换采样分布$\mu$，并且统计每次迭代之后$\mu^t$和$\mu^{t+1}$之间差异。可以用TV散度和”loss shift”等指标来量化它。实验结果如下图：</p>
+<p><img src="/images/dqn4/figure7.png"></p>
+<p>&nbsp;</p>
+<p>可以看见有几个分布的偏移量一定0的，因为他们就是固定不变的。具有偏移量的只有Replay(两个)、on-policy、prioritized四个分布。在图中我们看不出偏移量和模型性能之间有什么关系，尤其是prioritized偏移量这么巨大，仍然效果很好，而偏移量为0的random、pi* 则效果较差。</p>
+<p>从这个结果得到的结论是，分布漂移并不是影响模型性能的主要指标，虽然Replay确实相对于on-policy减小了偏移量，但是效果差异并不是很大，而且有异常点prioritized的存在。</p>
+<p>总的来说，moving target 和 distribution-shift对于模型性能的影响不大，至少没有我们想象中那么大，起主导作用的仍然是采样误差和函数近似。</p>
+<h3 id="4-Sampling-Distributions"><a href="#4-Sampling-Distributions" class="headerlink" title="4.Sampling Distributions"></a>4.Sampling Distributions</h3><p>既然分布偏移对性能影响不大，那么采样分布的什么特征会影响模型性能呢？这个实验是探索性的，作者猜想是分布越宽，能覆盖越多的state-action，那么模型性能就越好。换而言之，熵越高的分布，模型性能可能会越好。探索实验的结果如下：</p>
+<p><img src="/images/dqn4/figure9.png"></p>
+<p>&nbsp;</p>
+<p>可以看见还是有点正相关的关系。Uniform、Prioritized都属于熵高的分布，他们的效果也是排在前两个的。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>相信上面实验已经很清楚了，总结一下：</p>
+<ol>
+<li>函数近似影响和采样误差导致的过拟合是占主导作用的。</li>
+<li>模型容量越大，函数近似造成的影响越小；每个幕采样样本越多，过拟合影响越小。</li>
+<li>distribution shift 和target moving 的影响没有那么大，尤其是前者，几乎和模型性能没有关系。</li>
+<li>采样分布的熵越高，覆盖的state-action越广，模型的效果似乎越好。我个人认为间接印证了第一条。</li>
+<li>target net 作用不大，replay buffer作用很大，但这个作用不体现在分布漂移中，而是体现在减轻过拟合的影响上。</li>
+</ol>
+<p>那么我们已经差不多弄清了这些误差到底来源是什么，采取什么措施可以削弱误差的影响，最重要的是通过实验更进一步了解了target net 和replay这两个看似难解释的问题，可以说，我们前四章一直在围绕着这两个点在讨论，已经够详细了。</p>
+<p>那么DQN的讨论可以暂时告一段落了，虽然坑还没填完…至少还会有一篇关于Double DQN和Dual DQN的文章，如果疫情逼着我在家办公时间持续到2月底的话，也许能把坑填上…</p>
+<h2 id="可以参考的资料"><a href="#可以参考的资料" class="headerlink" title="可以参考的资料"></a>可以参考的资料</h2><p><a href="https://arxiv.org/abs/1902.10250" target="_blank" rel="noopener">Diagnosing Bottlenecks in Deep Q-learning Algorithms</a></p>
+<p><a href="https://www.cs.cmu.edu/~arielpro/15381f16/c_slides/781f16-11.pdf" target="_blank" rel="noopener">关于值迭代收敛性证明 CMU 15-781 Lecture 11:Markov Decision Processes II</a></p>
+<p><a href="http://rail.eecs.berkeley.edu/deeprlcoursesp17/docs/lec3.pdf" target="_blank" rel="noopener">berkeley:Q-Function Learning Methods</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DQN/" rel="tag"># DQN</a>
+              <a href="/tags/reinforcement-learning/" rel="tag"># reinforcement learning</a>
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/Q-Learning/" rel="tag"># Q-Learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/dqn3.htm" rel="prev" title="Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差">
+      <i class="fa fa-chevron-left"></i> Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/xgboost.htm" rel="next" title="xgboost论文理解(1)">
+      xgboost论文理解(1) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#我们在意的几个问题"><span class="nav-number">1.</span> <span class="nav-text">我们在意的几个问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Function-approximation-对收敛性的影响是什么？"><span class="nav-number">1.1.</span> <span class="nav-text">1.Function approximation 对收敛性的影响是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-采样误差-sampling-error-和过拟合对模型的影响是什么？"><span class="nav-number">1.2.</span> <span class="nav-text">2.采样误差(sampling error)和过拟合对模型的影响是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-分布漂移-distribution-shift-和moving-target对模型的影响是什么？"><span class="nav-number">1.3.</span> <span class="nav-text">3.分布漂移(distribution shift)和moving target对模型的影响是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-最好的采样分布是什么-What-is-the-best-sampling-or-weighting-distribution"><span class="nav-number">1.4.</span> <span class="nav-text">4. 最好的采样分布是什么? (What is the best sampling or weighting distribution?)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Preliminaries"><span class="nav-number">2.</span> <span class="nav-text">Preliminaries</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验步骤"><span class="nav-number">3.</span> <span class="nav-text">实验步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验结果分析"><span class="nav-number">4.</span> <span class="nav-text">实验结果分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Function-Approximation-and-Convergence"><span class="nav-number">4.1.</span> <span class="nav-text">1.Function Approximation and Convergence</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Sampling-Error-and-Overfitting"><span class="nav-number">4.2.</span> <span class="nav-text">2.Sampling Error and Overfitting</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Non-Stationarity-moving-target-and-distribution-shift"><span class="nav-number">4.3.</span> <span class="nav-text">3.Non-Stationarity(moving target and distribution shift)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Sampling-Distributions"><span class="nav-number">4.4.</span> <span class="nav-text">4.Sampling Distributions</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可以参考的资料"><span class="nav-number">6.</span> <span class="nav-text">可以参考的资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Captain Qiu</p>
+  <div class="site-description" itemprop="description">For my wife</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">蜀ICP备20002327号-1 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Captain Qiu</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1278555605&web_id=1278555605"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#valine-comments',
+      verify: false,
+      notify: false,
+      appId: 'PaC0k9h1K6lYPaeBm5sUJyuE-gzGzoHsz',
+      appKey: 'KSWkBrR5jaojJanxsmjtbpSS',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: true,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

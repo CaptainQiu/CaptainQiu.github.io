@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://qddmj.cn').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="DQN中涉及到哪些误差？什么是投影误差？在这篇文章里一起聊聊Linear Value-Function Geometry吧">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差">
+<meta property="og:url" content="https://qddmj.cn/dqn3.htm">
+<meta property="og:site_name" content="Our Home">
+<meta property="og:description" content="DQN中涉及到哪些误差？什么是投影误差？在这篇文章里一起聊聊Linear Value-Function Geometry吧">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://qddmj.cn/images/dqn3/linear_value_function.png">
+<meta property="article:published_time" content="2020-02-03T14:19:05.000Z">
+<meta property="article:modified_time" content="2020-06-08T09:14:58.920Z">
+<meta property="article:author" content="Captain Qiu">
+<meta property="article:tag" content="DQN">
+<meta property="article:tag" content="reinforcement learning">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="Q-Learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qddmj.cn/images/dqn3/linear_value_function.png">
+
+<link rel="canonical" href="https://qddmj.cn/dqn3.htm">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差 | Our Home</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?417b0be270629c126f6db2d0dc5eb616";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Our Home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">learning room</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://qddmj.cn/dqn3.htm">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Captain Qiu">
+      <meta itemprop="description" content="For my wife">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Our Home">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-03 22:19:05" itemprop="dateCreated datePublished" datetime="2020-02-03T22:19:05+08:00">2020-02-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-06-08 17:14:58" itemprop="dateModified" datetime="2020-06-08T17:14:58+08:00">2020-06-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Deep-Q-Learning/" itemprop="url" rel="index">
+                    <span itemprop="name">Deep Q-Learning</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/dqn3.htm" class="post-meta-item leancloud_visitors" data-flag-title="Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/dqn3.htm#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/dqn3.htm" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <div class="post-description">DQN中涉及到哪些误差？什么是投影误差？在这篇文章里一起聊聊Linear Value-Function Geometry吧</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="误差来源"><a href="#误差来源" class="headerlink" title="误差来源"></a>误差来源</h2><p>前一章我们比较概要的了解了作者所采取的两个措施：TargetNet和Experience Replay，并且从直观上解释了他们的作用，加上了一点我个人的理解。</p>
+<p>在逐渐了解这两项措施的过程中，我们很自然的引出了和函数近似相关的一个问题，就是<strong>deadly triad</strong>，恰好DQN同时满足了这三个条件，因此，DQN表现出的不稳定和误差，与这三个条件有什么关系呢？这个问题也许很难回答，我们可以更加具体一些，DQN的误差来源有哪些？作者做的措施是怎样削弱这些误差的？</p>
+<p>我个人将DQN的误差分为以下几类：</p>
+<ul>
+<li>函数近似误差:由Function Approx引起的投影误差。</li>
+<li>过拟合</li>
+<li>采样分布漂移</li>
+<li>采样误差</li>
+<li>Target moving</li>
+<li>最大化偏差(Maximization Bias)</li>
+</ul>
+<p>这是一个比较大的主题，将会分成上下两个章节，本章主要讨论和分析由函数近似引起的投影误差。</p>
+<h2 id="Linear-Value-Function-Geometry"><a href="#Linear-Value-Function-Geometry" class="headerlink" title="Linear Value Function Geometry"></a>Linear Value Function Geometry</h2><p>首先我们需要对Function Approximation带来的误差有个直观的了解，函数近似和自助法是“死亡三条件”中相对重要的两个，《RL book 2018》第11.4节，sutton用线性近似函数详细分析了函数近似带来的误差，我们可以跟随他的脚步简单建立一些概念。</p>
+<h3 id="投影算子-Projection-operator"><a href="#投影算子-Projection-operator" class="headerlink" title="投影算子(Projection operator)"></a>投影算子(Projection operator)</h3><p>乍一看很复杂，其实我们只需搞懂几个概念即可。为了简单起见，使用线性基函数做分析。我们假设状态空间${\cal S}={s_1,s_2,s_3}$，也就是总共有三种状态。并且假设近似函数为线性基函数，参数为${\bf w}=(w_1,w_2)^{\top}$。</p>
+<p>在策略$\pi$固定的情况下，真实的Value Function记为 $v_{\pi}:{\cal S} \rightarrow {\Bbb R}$</p>
+<p>假设有2个特征基函数记为 $\phi<em>{0},\phi</em>{1}:{\cal S} \rightarrow {\Bbb R}$</p>
+<p>那么可以将函数近似Value Function $v_w$ 写出来 : $v_w(s)=\sum{w_i*\phi_i(s)}$</p>
+<p>然后在三维空间$\Bbb R^3$中用一个向量表示真实值函数: $v<em>\pi=[v</em>\pi(s<em>1),v</em>\pi(s<em>2),v</em>\pi(s_3)]$</p>
+<p>同样的，我们也可以用一个向量表示近似值函数: $v_w=[v_w(s_1),v_w(s_2),v_w(s_3)]$</p>
+<p>将这个三维空间记为$\cal V$，里面每一个点(向量)表示一个值函数。</p>
+<p>然后我们再定义一个二维空间 $\Phi$，在这个空间中，我们的近似值函数又可以被定义为：$v_w=[w_1,w_2]$，它是也是这个二维空间中的一个点。这说明 $\Phi$ 是 $\cal V$ 的一个子空间。也就是如上面那张图中所示一样。</p>
+<p>然后我们使用投影算子 $\Pi$ 将$\cal V$上的向量投影到子空间$\Phi$上:</p>
+<script type="math/tex; mode=display">
+\Pi v \stackrel{\text{def}}{=} v_w \ \  {\rm while} \ \  w=\arg\min_{w \in \Phi }||v-v_w||_{\mu}^2</script><p>这里的 $\mu_{\pi}$ 是在策略 $\pi$ 固定情况下，状态的概率密度函数。<br>定义距离：</p>
+<script type="math/tex; mode=display">
+d(v_1,v_2)=||v_1-v_2||_{\mu}^2=\sum_i^n(v_1(s_i)-v_2(s_i))^2 \cdot \mu_{\pi}(s_i)</script><p>它其实就是一个加权的欧式距离。在定义了这个距离之后，我们就能用投影算子 $\Pi$ 将空间 $\cal V$ 中任意一点给投影到平面 $\Phi$ 上。</p>
+<p>投影算子也可以这样解释：在平面 $\Phi$ 上找到一个点 $\Pi v$，它与    $\cal V$ 中点 $v$ 的距离最近。</p>
+<h3 id="Bellman-算子-Bellman-operator"><a href="#Bellman-算子-Bellman-operator" class="headerlink" title="Bellman 算子(Bellman operator)"></a>Bellman 算子(Bellman operator)</h3><p>根据强化学习中关于值函数贝尔曼方程的定义:</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+
+v_\pi(s) \  \dot{=}& \ {\Bbb E}[G_t|S_t=s] \\
+ =&\ {\Bbb E}[R_{t+1}+\gamma G_{t+1}|S_t=s]
+
+\end{aligned}</script><p>我们可以直接写出Bellman算子$B_\pi$:</p>
+<script type="math/tex; mode=display">
+(B_\pi v)(s) \ \dot{=} \sum_a \pi(a|s) \sum_{s',r}{p(s',r|s,a)}[r+\gamma v(s')]</script><p>真实值函数 $v<em>\pi$ 是算子 $B</em>\pi$ 的唯一不动点(即 $B<em>\pi v</em>\pi=v_\pi$ 也就是值函数贝尔曼方程的定义)</p>
+<p>那么可以定义近似值函数的贝尔曼误差(Bellman error):</p>
+<script type="math/tex; mode=display">
+\overline{\delta}_w=B_\pi v_w-v_w</script><p>特别要注意的是，TD误差 $\delta_w$ 和 Bellman误差 $\overline{\delta}_w$ 之间的关系。</p>
+<p>TD误差为:</p>
+<script type="math/tex; mode=display">
+\delta_w(s,a,s')= r(s,a,s')+ \gamma v_w(s')-v_w(s)</script><p>Bellman误差为:</p>
+<script type="math/tex; mode=display">
+\overline{\delta}_w(s)= \Bbb E_{a\sim \pi ,s'\sim p(s'|s,a)}[\delta_w(s)]</script><p>可以看出，Bellman算子的作用就是将某个值函数$v$展开成时间差分的形式(TD)的期望，而且展开会存在Bellman误差，当且仅当$v=v_\pi$时，Bellman误差为0。</p>
+<blockquote>
+<p>注：上面$r$和$r(s,a,s’)$是回报在不同已知变量下的不同形式，包括$r(s,a)$它们都来自于MDP模型函数$p(r,s’|a,s)$。见《RLbook2018》P49。</p>
+</blockquote>
+<h3 id="投影误差"><a href="#投影误差" class="headerlink" title="投影误差"></a>投影误差</h3><p>Bellman算子给我们提供了一个思路，要想得到真实值函数，我们可以迭代地减小$v_w$的Bellman误差，直至为0。如果我们在表格型解决方案中使用这个思路，很正确，但是在函数近似问题中，却是行不通的。</p>
+<p>下面来解释为什么行不通。</p>
+<p>这张《RLbook2018》中的图可以解决我们这一章所有问题:</p>
+<p><img src="/images/dqn3/linear_value_function.png"></p>
+<p>&nbsp;</p>
+<p>换个角度看，Bellman算子将一个点$v<em>w$转换为另一个点$v_w’=B</em>\pi v<em>w$，然后它们的差$(B</em>\pi v_w-v_w)$就是Bellman error vector(BE)。</p>
+<p>图中我们初始近似值函数点$v<em>w$在$\Phi$平面上，第一次使用Bellman算子，产生的新的点$B</em>\pi v_w$“极有可能”离开$\Phi$平面，因为Bellman算子作用范围是整个值函数空间$\cal V$。</p>
+<p>当$B<em>\pi v_w$不在$\Phi$上时，我们就不可能让Bellman error vector（BE）=0，因为$v_w$是不可能离开$\Phi$平面的。只能退而求其次，找到$B</em>\pi v<em>w$离$\Phi$最近的点，也就是使用投影算子将其投影到$\Phi$上，得到新的点 $\Pi B</em>\pi v<em>w$。如图中所示，新的点是在$\Phi$上的，我们可以使用梯度下降法更新参数$(w_1,w_2)$让$v_w$移动到$\Pi B</em>\pi v_w$。这个过程实际上是在最小化投影Bellman误差(projected Bellman error)PBE。</p>
+<p>我们可以在图上看见，如果$v$可以离开$\Phi$平面，反复迭代使用Bellman算子，并每次都能使Bellman误差等于0，那么有理论可以保证最后一定收敛到不动点，即真实值函数$v_\pi$，也就是上面那一段连续的灰色箭头所指的路径。</p>
+<p>$v<em>w$不能离开$\Phi$平面时，我们每次最小化的误差是PBE，就是让$v_w$移动到$B</em>\pi v<em>w$的投影点上。下一次迭代从$\Pi B</em>\pi v_w$出发，继续使用Bellman算子，然后再投影到$\Phi$上。下面的灰色箭头就是近似值函数$v_w$的迭代路径。和之前一样我们可以进一步定义均方PBE,使用状态的分布函数进行加权:</p>
+<script type="math/tex; mode=display">
+{\rm \overline{PBE}}( {\bf w})=||\Pi \overline{\delta}_w||^2_\mu</script><p>每次迭代都让PBE为0向量，也就是让均方PBE=0，最终$v<em>w$也会收敛到一不动点$\rm w</em>{TD}$。</p>
+<blockquote>
+<p>注：$\rm w_{TD}$是TD不动点，是最小化PBE得到的，并不是最小化TDE得到的。</p>
+</blockquote>
+<p>真实值函数$v<em>\pi$也可以投影到$\Phi$上，得到$\Phi$平面上离真实值函数最近的点$\Pi v</em>\pi$。他们之间的误差叫做Value Error(VE)，这是理论上$v<em>w$能到达的离$v</em>\pi$最近的点，注意，是理论上，最小化PBE得到的$\rm w_{TD}$很有可能与它不相等。</p>
+<script type="math/tex; mode=display">
+{\rm \overline{VE}}( {\bf w})=||\Pi v_\pi-v_\pi ||^2_\mu</script><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>好了，到此为止，我们已经初步了解了函数近似所带来的误差，和投影算子密切相关，我可以统称为投影误差。为了下一章中的投影误差分析，我们这里做了很多铺垫，下一章主要会结合论文讨论其他误差。</p>
+<p>最后强调两个概念:</p>
+<ol>
+<li><p><strong>我们DQN每次迭代最小化的是PBE，如果能够收敛，最后会收敛到定点$\rm w<em>{TD}$，这个点很有可能不是$\Phi$上的最优点$\Pi v</em>\pi$。</strong></p>
+</li>
+<li><p><strong>$\Pi v<em>\pi$是指的$v</em>\pi$离平面$\Phi$最近一点。它和$v<em>\pi$之间存在误差VE，而且VE很有可能不为0，除非$v</em>\pi$刚好在平面上。</strong></p>
+</li>
+</ol>
+<p>图上的其他内容大家可以自己详细阅读那一章节，这里就不赘述了。</p>
+<h2 id="可以参考的资料"><a href="#可以参考的资料" class="headerlink" title="可以参考的资料"></a>可以参考的资料</h2><p><a href="http://web.stanford.edu/class/cme241/lecture_slides/ValueFunctionGeometry.pdf" target="_blank" rel="noopener">[1] Stanford University:Value Function Geometry and Gradient TD</a></p>
+<p><a href="http://people.csail.mit.edu/agf/Files/13FTML-RLTutorial.pdf" target="_blank" rel="noopener">[2] A Tutorial on Linear Function Approximators for Dynamic Programming and Reinforcement Learning</a></p>
+<p>&nbsp;<br>&nbsp;<br>&nbsp;<br>&nbsp;</p>
+<blockquote>
+<p>由于没听老婆劝，执意回湖北后，恰好碰见新冠肺炎爆发，被封在省内。十几天没出门，人也发霉了。截止今日全国已经有一万七千多人被感染，疫情发展速度之快让我们都措手不及，一线的医务工作者和志愿者们你们辛苦了！相信一切都会好起来，我和老婆以前在武汉上大学，对这座城市感情很深，等到风平浪静，一定要再去樱花大道走一走。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DQN/" rel="tag"># DQN</a>
+              <a href="/tags/reinforcement-learning/" rel="tag"># reinforcement learning</a>
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/Q-Learning/" rel="tag"># Q-Learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/dqn2.htm" rel="prev" title="Deep Q-Learning 系列论文漫谈(二) 从Target Net和Experience replay聊起">
+      <i class="fa fa-chevron-left"></i> Deep Q-Learning 系列论文漫谈(二) 从Target Net和Experience replay聊起
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/dqn4.htm" rel="next" title="Deep Q-Learning 系列论文漫谈(四) 错综复杂的误差(下)-误差汇总">
+      Deep Q-Learning 系列论文漫谈(四) 错综复杂的误差(下)-误差汇总 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#误差来源"><span class="nav-number">1.</span> <span class="nav-text">误差来源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linear-Value-Function-Geometry"><span class="nav-number">2.</span> <span class="nav-text">Linear Value Function Geometry</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#投影算子-Projection-operator"><span class="nav-number">2.1.</span> <span class="nav-text">投影算子(Projection operator)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bellman-算子-Bellman-operator"><span class="nav-number">2.2.</span> <span class="nav-text">Bellman 算子(Bellman operator)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#投影误差"><span class="nav-number">2.3.</span> <span class="nav-text">投影误差</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可以参考的资料"><span class="nav-number">4.</span> <span class="nav-text">可以参考的资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Captain Qiu</p>
+  <div class="site-description" itemprop="description">For my wife</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">蜀ICP备20002327号-1 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Captain Qiu</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1278555605&web_id=1278555605"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#valine-comments',
+      verify: false,
+      notify: false,
+      appId: 'PaC0k9h1K6lYPaeBm5sUJyuE-gzGzoHsz',
+      appKey: 'KSWkBrR5jaojJanxsmjtbpSS',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: true,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

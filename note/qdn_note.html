@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://qddmj.cn').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="dqn原始论文，有replay buffer,无TargetQ网络    Mnih, Volodymyr, et al. “Playing atari with deep reinforcement learning.” NIPS2013 dqn基础改进版，也叫Nature DQN，有replay buffer,有TargetQ网络Mnih, Volodymyr, et al. “Human-le">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Our Home">
+<meta property="og:url" content="https://qddmj.cn/note/qdn_note.html">
+<meta property="og:site_name" content="Our Home">
+<meta property="og:description" content="dqn原始论文，有replay buffer,无TargetQ网络    Mnih, Volodymyr, et al. “Playing atari with deep reinforcement learning.” NIPS2013 dqn基础改进版，也叫Nature DQN，有replay buffer,有TargetQ网络Mnih, Volodymyr, et al. “Human-le">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-06-08T09:14:58.938Z">
+<meta property="article:modified_time" content="2020-06-08T09:14:58.938Z">
+<meta property="article:author" content="Captain Qiu">
+<meta property="article:tag" content="machine learing">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://qddmj.cn/note/qdn_note">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: false
+  };
+</script>
+
+  <title> | Our Home
+  </title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?417b0be270629c126f6db2d0dc5eb616";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Our Home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">learning room</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+  
+  
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+    
+    
+    
+    <div class="post-block" lang="en">
+      <header class="post-header">
+
+<h1 class="post-title" itemprop="name headline">
+</h1>
+
+<div class="post-meta">
+  
+
+</div>
+
+</header>
+
+      
+      
+      
+      <div class="post-body">
+          <p>dqn原始论文，有replay buffer,无TargetQ网络    <a href="https://arxiv.org/abs/1312.5602" target="_blank" rel="noopener">Mnih, Volodymyr, et al. “Playing atari with deep reinforcement learning.” NIPS2013</a></p>
+<p>dqn基础改进版，也叫Nature DQN，有replay buffer,有TargetQ网络<a href="http://files.davidqiu.com//research/nature14236.pdf" target="_blank" rel="noopener">Mnih, Volodymyr, et al. “Human-level control through deep reinforcement learning.” Nature2015</a></p>
+<p>double deep q learning, 可以降低overestimation，查网上博客和资料很少有人能说清楚论文中的那个简单实验和降低overestimation之间的关系。<br>早在1993年Thrun and Schwartz (1993)提出q learning具有过估计问题，他们归因于函数近似能力不足(insufficiently flexible function approximation)。2010年，double q 作者(van Hasselt, 2010, 2011)归因于noise。double dqn论文思想来源double q learning ，作者认为即使函数特别灵活，近似误差为0，也可能发生过估计，作者还证明了Thrun and Schwart提出的qlearning过估计下界（场景比较简单的情况下），在使用double q算法的时候是0。这里只对论文中的简单实验作一个intuitive introduction，公式可以读者自己理解，大致思路是一样的。</p>
+<p>double q learning 论文 2015 <a href="https://arxiv.org/pdf/1509.06461.pdf" target="_blank" rel="noopener">Deep Reinforcement Learning with Double Q-learning Hado van Hasselt and Arthur Guez and David Silver</a></p>
+<p>Thrun and Schwartz论文 1993 <a href="http://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=CF41684742F89FD2136B08CD82C49C0D?doi=10.1.1.73.3097&amp;rep=rep1&amp;type=pdf" target="_blank" rel="noopener">Issues in Using Function Approximation for Reinforcement Learning</a></p>
+<p>带优先级的回放buffer。 <a href="https://arxiv.org/pdf/1511.05952.pdf" target="_blank" rel="noopener">Schaul, Tom, et al. “Prioritized experience replay.” ICLR2016</a></p>
+<p>dueling deep q learning,更改网络结构，A(a,s)=Q(a,s)-V(s)，输出Q之前分解为A和S。为什么要分解，分解后的实际效果是怎样。</p>
+<p>论文 <a href="https://arxiv.org/pdf/1511.06581.pdf" target="_blank" rel="noopener">Wang, Ziyu, et al. “Dueling network architectures for deep reinforcement learning.” ICML2016</a></p>
+<p>stackexchange回答,<a href="https://datascience.stackexchange.com/questions/34074/dueling-dqn-cant-understand-its-mechanism" target="_blank" rel="noopener">Dueling DQN - can’t understand its mechanism</a></p>
+<p>论文中Target Net的提出是为了提升训练的稳定性。其实从严格的数学角度来看，增加Target Net的目的是含糊的。往大了说，在强化学习Function Approximation这个领域里，有一些重要问题还是悬而未决的，sutton在RLbook2018的11.3节中将其称为”The Deadly Triad”:Function approximation,Bootstrapping,Off-policy training。如果你的算法中正好包含这三个因素，那么恭喜你，训练的不稳定、结果的不收敛都是有可能的。但是如何避免不稳定、这三个条件是怎么互相作用的，说不清，没有一个统一的公式。这三个问题也是RL领域一直正在研究的。所以论文那个看似轻描淡写的表述”further improving the stability of our method with neural networks”说明了，作者也不知道实际机理是啥，就凭着经验和intuition加了一手，效果不错，就写论文里了。气不气，人家大师改算法一改一个准，说明都是用intuition调参，大师的intuition就是好使。</p>
+<p>有朋友可能在这个地方比较困惑，到底这个Target Net怎么解释，于是去查了很多资料。我在网上逛了一圈，能够详细展开讲这个点的基本没有，可能觉得论文都说了是增加训练稳定性，那就是增加训练稳定性，还有什么好质疑的呢，赶紧复现就完事儿了，奥力给。应该质疑的地方不是它的效果，而是它为什么能达到稳定训练的效果，有少部分朋友给出的解释是”fix target”，也就是TargetNet固定住了计算TD误差时候的Target Value不会随着每次迭代θ的变化而变化，引用那个朋友的话说叫“目标在跑，你在追着目标跑”，固定住θ可以加快收敛。<br>其实这种说法有道理但是不严谨，在RLbook中Linear Value-function Geometry这章中，直观给出了，如果function approximation使用的是线性函数，那么使用Q-iteration算法一定能收敛到一个定点。在迭代过程中也是“目标在跑，你在追着目标跑”。<br>接上面。所以target value在移动是客观存的、是必然的；另一个例子是凸函数的梯度下降法，整个算法的target也是在移动，但是最后收敛。target移动本身不是造成训练不稳定的因素，而是它的移动给我们的分析带来了很多麻烦，在函数近似的过程中会造成各种问题，从而不能在理论上确保收敛。<br>另外，在《Foundations of Deep Reinforcement Learning: Theory and Practice in Python》这本书中关于Target Net的意义给出了相似但更进一步的解释，说它目的就是旨在提高训练稳定性，至于为啥，因为神经网络是脱胎于监督学习理论的，监督学习前提就是样本独立同分布，刚开始样本是(x=0,y=1)，更新过一次参数后，变成了(x=0,y=2)，又更新了一次参数，变成了(x=0,y=3)，这咋拟合？y要是满足一个正态分布还好说，y要是一个乱七八糟的分布，和参数还强相关，那就有可能会引起训练不稳定、结果不收敛。“This “moving target” can destabilize training because it makes it much less clear what values a network should be trying to approach”。这里解释的更加有道理了些，就是变化的样本分布变化可能会引起神经网络的训练的不稳定。</p>
+
+      </div>
+      
+      
+      
+    </div>
+    
+
+    
+    
+    
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Captain Qiu</p>
+  <div class="site-description" itemprop="description">For my wife</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">蜀ICP备20002327号-1 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Captain Qiu</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1278555605&web_id=1278555605"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#valine-comments',
+      verify: false,
+      notify: false,
+      appId: 'PaC0k9h1K6lYPaeBm5sUJyuE-gzGzoHsz',
+      appKey: 'KSWkBrR5jaojJanxsmjtbpSS',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: true,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
