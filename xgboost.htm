@@ -46,15 +46,15 @@
   };
 </script>
 
-  <meta name="description" content="记录个人理解的xgboost论文">
+  <meta name="description" content="AdaBoost、提升树和GBDT的联系和区别有哪些？特别是提升树和梯度提升树的核心区别在什么地方？">
 <meta property="og:type" content="article">
-<meta property="og:title" content="xgboost论文理解(1)">
+<meta property="og:title" content="xgboost理解(1) 从AdaBoost到GBDT的变迁">
 <meta property="og:url" content="https://qddmj.cn/xgboost.htm">
 <meta property="og:site_name" content="Our Home">
-<meta property="og:description" content="记录个人理解的xgboost论文">
+<meta property="og:description" content="AdaBoost、提升树和GBDT的联系和区别有哪些？特别是提升树和梯度提升树的核心区别在什么地方？">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-06-08T11:41:05.000Z">
-<meta property="article:modified_time" content="2020-06-08T11:41:37.874Z">
+<meta property="article:modified_time" content="2020-06-10T06:28:08.416Z">
 <meta property="article:author" content="Captain Qiu">
 <meta property="article:tag" content="machine learning">
 <meta property="article:tag" content="gbdt">
@@ -73,7 +73,7 @@
   };
 </script>
 
-  <title>xgboost论文理解(1) | Our Home</title>
+  <title>xgboost理解(1) 从AdaBoost到GBDT的变迁 | Our Home</title>
   
 
 
@@ -210,7 +210,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          xgboost论文理解(1)
+          xgboost理解(1) 从AdaBoost到GBDT的变迁
         </h1>
 
         <div class="post-meta">
@@ -219,10 +219,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-06-08 19:41:05 / Modified: 19:41:37" itemprop="dateCreated datePublished" datetime="2020-06-08T19:41:05+08:00">2020-06-08</time>
+              <time title="Created: 2020-06-08 19:41:05" itemprop="dateCreated datePublished" datetime="2020-06-08T19:41:05+08:00">2020-06-08</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-06-10 14:28:08" itemprop="dateModified" datetime="2020-06-10T14:28:08+08:00">2020-06-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -236,7 +242,7 @@
             </span>
 
           
-            <span id="/xgboost.htm" class="post-meta-item leancloud_visitors" data-flag-title="xgboost论文理解(1)" title="Views">
+            <span id="/xgboost.htm" class="post-meta-item leancloud_visitors" data-flag-title="xgboost理解(1) 从AdaBoost到GBDT的变迁" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -257,7 +263,7 @@
   </span>
   
   
-            <div class="post-description">记录个人理解的xgboost论文</div>
+            <div class="post-description">AdaBoost、提升树和GBDT的联系和区别有哪些？特别是提升树和梯度提升树的核心区别在什么地方？</div>
 
         </div>
       </header>
@@ -268,7 +274,67 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <p>提到xgboost，大家都会说，xgboost是gbdt的一种高效实现。简而言之，它的指导思想和大的框架是gbdt(Gradient Boosting Decision Tree)，然后在各个步骤做了不同的优化，提升了训练的速度和精度。但是我看了论文后觉得，xgboost的改动还是很大的，因为修改了损失函数，并且使用了不同的角度去理解损失函数，不能完全看做是gbdt的一种实现，已经可以叫做另外一种算法了。</p>
+<h2 id="AdaBoost"><a href="#AdaBoost" class="headerlink" title="AdaBoost"></a>AdaBoost</h2><p>首先说说提升算法。提升方法中最具代表性的是AdaBoost。所谓提升方法，思想就是综合多个弱分类器的结果，得到一个近似强分类器的结果。</p>
+<p>举例来说，假设存在一组训练样本：</p>
+<script type="math/tex; mode=display">
+T=\{(x_1,y_1),(x_2,y_2),...,(x_n,y_n)\}</script><p>其中输入$x_i \in \mathcal{X} \subseteq \mathbf R^n$，输出$y_i \in \mathcal{Y}=\{-1,+1\}$。AdaBoost的做法是，训练$m$个轮次，每轮都训练出一个弱分类器$G_m(x)$，然后最终分类器$G(x)$是：</p>
+<script type="math/tex; mode=display">
+\\f(x)=\sum_{m=1}^{M}{\alpha_mG_m(x)}
+\\   \ 
+\\G(x)={\rm sign} (f(x))</script><p>可以看见，最终分类器就是每一轮弱分类器的线性组合。然后AdaBoost告诉了我们如何去确定每一轮的$G_m(x)$和它对应的系数$\alpha_m$：通过每一轮的训练结果，将分错的样本赋予高的权重，在下一轮”重点”学习，相对的，分对的样本减小权重。然后根据本次的误差计算本次的系数。</p>
+<p>因此，AdaBoost的思想是通过修改每轮次训练样本的权重来训练出不同的弱分类器，然后根据其错误率来确定每个弱分类器在最终分类器中的”话语权”。</p>
+<h2 id="Boosting-Tree"><a href="#Boosting-Tree" class="headerlink" title="Boosting Tree"></a>Boosting Tree</h2><p>提升树是以决策树为基函数的提升算法，和AdaBoost相似的地方是，它也是一个加法模型，但是省去了系数，并且提升树是用来解决回归问题的，因为分类问题也可以通过拟合一个线性边界去解决，所以提升树也可以在稍作转换后用于分类问题。</p>
+<p>提升树类似AdaBoost，可以表示为一个加法模型：</p>
+<script type="math/tex; mode=display">
+f_M(x)=\sum_{m=1}^MT(x;\Theta_m)</script><p>其中$T(x;\Theta_m)$表示决策树，$\Theta_m$为决策树的参数，$M$为树的个数。在回归问题上，提升树与AdaBoost有微妙的不同，我举个具体的例子，假设一个样本是$(x_0=3,y_0=1.5)$，那么:</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+\\&f_0(x_0) =0
+\\&f_1(x_0)=1
+\\&f_2(x_0)=0.3
+\\&f_3(x_0)=0.15
+\\&f_M(x_0)=f_0+f_1+f_2+f_3=1.45
+\end{aligned}</script><p>为什么后续的学习器呈现出越来越小的趋势呢，是因为提升树的训练算法的特点造成的。我们把公式变换一下：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+    \\&f_0(x)=0
+    \\&f_m(x)=f_{m-1}+T(x;\Theta_m)\ \ ,\ \ m=1,2,...,M
+\end{aligned}</script><p>在第m步，给定当前模型$f_{m-1}(x)$，要求解:</p>
+<script type="math/tex; mode=display">
+\Theta_m=\arg \min_{\Theta_m}\sum_{i=1}^NL(y_i,f_{m-1}(x_i)+T(x_i;\Theta_m))</script><p>然后得到第m棵树的参数$\Theta_m$。回归问题一般都采用平方差损失函数:</p>
+<script type="math/tex; mode=display">
+L(y,f(x))=(y-f(x))^2</script><p>然后带入到提升树的损失函数中：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+\\L(y,f_{m-1}(x)+T(x;\Theta_m))&=[y-f_{m-1}(x)-T(x;\Theta_m)]^2  
+\\&=[r-T(x;\Theta_m)]^2  
+\end{aligned}</script><p>这里:</p>
+<script type="math/tex; mode=display">
+r=y-f_{m-1}(x)</script><p>也就是说，要最小化L，就要让待求的树模型$T(x;\Theta_m)$去拟合值r，而r实际上是当前给定总模型$f_{m-1}(x)$的残差，因此每一轮要求的单个树模型实际上是在拟合上一轮总模型的残差，残差当然是越拟合越小的，这时候就可以结合上面的例子理解整个提升树的思想了。</p>
+<h2 id="GBDT"><a href="#GBDT" class="headerlink" title="GBDT"></a>GBDT</h2><p>于提升树来说，它已经做得足够好了，但是让人觉得有瑕疵的地方是，只有损失函数是平方损失函数才能写成上面那种形式（虽然很多时候我们确实只用平方损失函数），如果能改进的更加通用一些，那么模型的适用性会更广泛。</p>
+<p>Freidman针对这个问题提出了GBDT算法。提升树中，其实我们每一轮是拟合上一轮总模型的残差，从直观上来看，损失函数每一步都越来越低，这种迭代方式特别像梯度下降法。而梯度下降法与拟合残差不一样的是，梯度下降每一步都是沿着损失函数下降最快的方向进行的，只是一个速度快慢的问题。</p>
+<p>我们把总模型$f_{m-1}(x)$整体看做是自变量，把$T(x;\Theta_m)$看做是自变量迭代的增量，并且可以带上学习速率：$\alpha\Delta f_{m-1}(x)$。那么迭代式可以写成：</p>
+<script type="math/tex; mode=display">
+f_{m}(x)=f_{m-1}(x)+（-\alpha \Delta f_{m-1}(x)）</script><p>这是标准的梯度下降法，那么总模型可以看成是从$f_0$开始的梯度下降迭代过程：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+\\f_M(x)&=\sum_{m=1}^M T(x;\Theta_m)
+\\&=f_0+（-\Delta f_0）+（-\Delta f_1）+...+（-\Delta f_{m-1}）
+\end{aligned}</script><p>因此我们每一步计算得到当前的$\Delta f_{m-1}$，然后用当前待求的树模型$T(x;\Theta_m)$去拟合这个梯度的负数即可。</p>
+<script type="math/tex; mode=display">
+\Delta f_{m-1}(x_i)=[\frac{\partial L(y_i,f_{m-1}(x_i))}{\partial f_{m-1}(x_i)}]</script><p>当损失函数L为平方损失函数的时候，这个梯度恰好为残差$y_i-f_{m-1}(x_i)$。因此提升树是GBDT的一种特殊情况，这样一来，GBDT的适用范围就放的很大了，理论上可以解决任何损失函数的有监督学习问题。</p>
+<h2 id="切分点、候选点、分箱"><a href="#切分点、候选点、分箱" class="headerlink" title="切分点、候选点、分箱"></a>切分点、候选点、分箱</h2><p>解决完算法核心思想问题，然后就要解决具体的操作问题了，如何去拟合每一个$T(x;\Theta_m)$。因为提升树和GBDT用的都CART树，因此每一轮拟合都可以看做是生成一棵CART树的过程。</p>
+<p>李航老师在《统计学习方法》中给出的方法是，以每个$x_i$作为切分点，切分后该区域的最优值为该区域$y_i$的平均值，然后遍历计算切分后的平方差，选取平方差最低的作为本次的切分点。</p>
+<blockquote>
+<p>详细见《统计学习方法》第二版 P81</p>
+</blockquote>
+<p>然后GBDT在生成每一棵树的时候都要做这样大量的计算，当样本特别多的时候，给样本排序也很耗时，导致算法速度很慢，可以发现这一步也有很多可以优化的地方。分箱是一种减少计算量的离散化手段，一般是以分位点作为分箱的依据，这一步又可以做很多事情。</p>
+<h2 id="正则化"><a href="#正则化" class="headerlink" title="正则化"></a>正则化</h2><p>除了CART树自带的剪枝算法，其实在提升算法层面上，还可以有一系列的正则化方法可以使用。比如随机森林的列采样等等。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>XGBoost在GBDT的基础上做了进一步的细化和优化，包括从损失函数到CART树的生成策略都做了优化，尤其是在损失函数的定义上做了较大改动，下一章会详细探讨XGBoost的相关原理。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>李航《统计学习方法》</p>
+<p>如有疑问和见解请留言~</p>
+
     </div>
 
     
@@ -352,6 +418,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#AdaBoost"><span class="nav-number">1.</span> <span class="nav-text">AdaBoost</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Boosting-Tree"><span class="nav-number">2.</span> <span class="nav-text">Boosting Tree</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GBDT"><span class="nav-number">3.</span> <span class="nav-text">GBDT</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切分点、候选点、分箱"><span class="nav-number">4.</span> <span class="nav-text">切分点、候选点、分箱</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#正则化"><span class="nav-number">5.</span> <span class="nav-text">正则化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
