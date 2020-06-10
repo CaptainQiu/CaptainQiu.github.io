@@ -290,11 +290,11 @@
 </ul>
 <p>这是一个比较大的主题，将会分成上下两个章节，本章主要讨论和分析由函数近似引起的投影误差。</p>
 <h2 id="Linear-Value-Function-Geometry"><a href="#Linear-Value-Function-Geometry" class="headerlink" title="Linear Value Function Geometry"></a>Linear Value Function Geometry</h2><p>首先我们需要对Function Approximation带来的误差有个直观的了解，函数近似和自助法是“死亡三条件”中相对重要的两个，《RL book 2018》第11.4节，sutton用线性近似函数详细分析了函数近似带来的误差，我们可以跟随他的脚步简单建立一些概念。</p>
-<h3 id="投影算子-Projection-operator"><a href="#投影算子-Projection-operator" class="headerlink" title="投影算子(Projection operator)"></a>投影算子(Projection operator)</h3><p>乍一看很复杂，其实我们只需搞懂几个概念即可。为了简单起见，使用线性基函数做分析。我们假设状态空间${\cal S}={s_1,s_2,s_3}$，也就是总共有三种状态。并且假设近似函数为线性基函数，参数为${\bf w}=(w_1,w_2)^{\top}$。</p>
+<h3 id="投影算子-Projection-operator"><a href="#投影算子-Projection-operator" class="headerlink" title="投影算子(Projection operator)"></a>投影算子(Projection operator)</h3><p>乍一看很复杂，其实我们只需搞懂几个概念即可。为了简单起见，使用线性基函数做分析。我们假设状态空间${\cal S}=\{s_1,s_2,s_3\}$，也就是总共有三种状态。并且假设近似函数为线性基函数，参数为${\bf w}=(w_1,w_2)^{\top}$。</p>
 <p>在策略$\pi$固定的情况下，真实的Value Function记为 $v_{\pi}:{\cal S} \rightarrow {\Bbb R}$</p>
-<p>假设有2个特征基函数记为 $\phi<em>{0},\phi</em>{1}:{\cal S} \rightarrow {\Bbb R}$</p>
+<p>假设有2个特征基函数记为 $\phi_{0},\phi_{1}:{\cal S} \rightarrow {\Bbb R}$</p>
 <p>那么可以将函数近似Value Function $v_w$ 写出来 : $v_w(s)=\sum{w_i*\phi_i(s)}$</p>
-<p>然后在三维空间$\Bbb R^3$中用一个向量表示真实值函数: $v<em>\pi=[v</em>\pi(s<em>1),v</em>\pi(s<em>2),v</em>\pi(s_3)]$</p>
+<p>然后在三维空间$\Bbb R^3$中用一个向量表示真实值函数: $v_\pi=[v_\pi(s_1),v_\pi(s_2),v_\pi(s_3)]$</p>
 <p>同样的，我们也可以用一个向量表示近似值函数: $v_w=[v_w(s_1),v_w(s_2),v_w(s_3)]$</p>
 <p>将这个三维空间记为$\cal V$，里面每一个点(向量)表示一个值函数。</p>
 <p>然后我们再定义一个二维空间 $\Phi$，在这个空间中，我们的近似值函数又可以被定义为：$v_w=[w_1,w_2]$，它是也是这个二维空间中的一个点。这说明 $\Phi$ 是 $\cal V$ 的一个子空间。也就是如上面那张图中所示一样。</p>
@@ -313,7 +313,7 @@ v_\pi(s) \  \dot{=}& \ {\Bbb E}[G_t|S_t=s] \\
 
 \end{aligned}</script><p>我们可以直接写出Bellman算子$B_\pi$:</p>
 <script type="math/tex; mode=display">
-(B_\pi v)(s) \ \dot{=} \sum_a \pi(a|s) \sum_{s',r}{p(s',r|s,a)}[r+\gamma v(s')]</script><p>真实值函数 $v<em>\pi$ 是算子 $B</em>\pi$ 的唯一不动点(即 $B<em>\pi v</em>\pi=v_\pi$ 也就是值函数贝尔曼方程的定义)</p>
+(B_\pi v)(s) \ \dot{=} \sum_a \pi(a|s) \sum_{s',r}{p(s',r|s,a)}[r+\gamma v(s')]</script><p>真实值函数 $v_\pi$ 是算子 $B_\pi$ 的唯一不动点(即 $B_\pi v_\pi=v_\pi$ 也就是值函数贝尔曼方程的定义)</p>
 <p>那么可以定义近似值函数的贝尔曼误差(Bellman error):</p>
 <script type="math/tex; mode=display">
 \overline{\delta}_w=B_\pi v_w-v_w</script><p>特别要注意的是，TD误差 $\delta_w$ 和 Bellman误差 $\overline{\delta}_w$ 之间的关系。</p>
@@ -330,24 +330,24 @@ v_\pi(s) \  \dot{=}& \ {\Bbb E}[G_t|S_t=s] \\
 <p>这张《RLbook2018》中的图可以解决我们这一章所有问题:</p>
 <p><img src="/images/dqn3/linear_value_function.png"></p>
 <p>&nbsp;</p>
-<p>换个角度看，Bellman算子将一个点$v<em>w$转换为另一个点$v_w’=B</em>\pi v<em>w$，然后它们的差$(B</em>\pi v_w-v_w)$就是Bellman error vector(BE)。</p>
-<p>图中我们初始近似值函数点$v<em>w$在$\Phi$平面上，第一次使用Bellman算子，产生的新的点$B</em>\pi v_w$“极有可能”离开$\Phi$平面，因为Bellman算子作用范围是整个值函数空间$\cal V$。</p>
-<p>当$B<em>\pi v_w$不在$\Phi$上时，我们就不可能让Bellman error vector（BE）=0，因为$v_w$是不可能离开$\Phi$平面的。只能退而求其次，找到$B</em>\pi v<em>w$离$\Phi$最近的点，也就是使用投影算子将其投影到$\Phi$上，得到新的点 $\Pi B</em>\pi v<em>w$。如图中所示，新的点是在$\Phi$上的，我们可以使用梯度下降法更新参数$(w_1,w_2)$让$v_w$移动到$\Pi B</em>\pi v_w$。这个过程实际上是在最小化投影Bellman误差(projected Bellman error)PBE。</p>
+<p>换个角度看，Bellman算子将一个点$v_w$转换为另一个点$v_w’=B_\pi v_w$，然后它们的差$(B_\pi v_w-v_w)$就是Bellman error vector(BE)。</p>
+<p>图中我们初始近似值函数点$v_w$在$\Phi$平面上，第一次使用Bellman算子，产生的新的点$B_\pi v_w$“极有可能”离开$\Phi$平面，因为Bellman算子作用范围是整个值函数空间$\cal V$。</p>
+<p>当$B_\pi v_w$不在$\Phi$上时，我们就不可能让Bellman error vector（BE）=0，因为$v_w$是不可能离开$\Phi$平面的。只能退而求其次，找到$B_\pi v_w$离$\Phi$最近的点，也就是使用投影算子将其投影到$\Phi$上，得到新的点 $\Pi B_\pi v_w$。如图中所示，新的点是在$\Phi$上的，我们可以使用梯度下降法更新参数$(w_1,w_2)$让$v_w$移动到$\Pi B_\pi v_w$。这个过程实际上是在最小化投影Bellman误差(projected Bellman error)PBE。</p>
 <p>我们可以在图上看见，如果$v$可以离开$\Phi$平面，反复迭代使用Bellman算子，并每次都能使Bellman误差等于0，那么有理论可以保证最后一定收敛到不动点，即真实值函数$v_\pi$，也就是上面那一段连续的灰色箭头所指的路径。</p>
-<p>$v<em>w$不能离开$\Phi$平面时，我们每次最小化的误差是PBE，就是让$v_w$移动到$B</em>\pi v<em>w$的投影点上。下一次迭代从$\Pi B</em>\pi v_w$出发，继续使用Bellman算子，然后再投影到$\Phi$上。下面的灰色箭头就是近似值函数$v_w$的迭代路径。和之前一样我们可以进一步定义均方PBE,使用状态的分布函数进行加权:</p>
+<p>$v_w$不能离开$\Phi$平面时，我们每次最小化的误差是PBE，就是让$v_w$移动到$B_\pi v_w$的投影点上。下一次迭代从$\Pi B_\pi v_w$出发，继续使用Bellman算子，然后再投影到$\Phi$上。下面的灰色箭头就是近似值函数$v_w$的迭代路径。和之前一样我们可以进一步定义均方PBE,使用状态的分布函数进行加权:</p>
 <script type="math/tex; mode=display">
-{\rm \overline{PBE}}( {\bf w})=||\Pi \overline{\delta}_w||^2_\mu</script><p>每次迭代都让PBE为0向量，也就是让均方PBE=0，最终$v<em>w$也会收敛到一不动点$\rm w</em>{TD}$。</p>
+{\rm \overline{PBE}}( {\bf w})=||\Pi \overline{\delta}_w||^2_\mu</script><p>每次迭代都让PBE为0向量，也就是让均方PBE=0，最终$v_w$也会收敛到一不动点$\rm w_{TD}$。</p>
 <blockquote>
 <p>注：$\rm w_{TD}$是TD不动点，是最小化PBE得到的，并不是最小化TDE得到的。</p>
 </blockquote>
-<p>真实值函数$v<em>\pi$也可以投影到$\Phi$上，得到$\Phi$平面上离真实值函数最近的点$\Pi v</em>\pi$。他们之间的误差叫做Value Error(VE)，这是理论上$v<em>w$能到达的离$v</em>\pi$最近的点，注意，是理论上，最小化PBE得到的$\rm w_{TD}$很有可能与它不相等。</p>
+<p>真实值函数$v_\pi$也可以投影到$\Phi$上，得到$\Phi$平面上离真实值函数最近的点$\Pi v_\pi$。他们之间的误差叫做Value Error(VE)，这是理论上$v_w$能到达的离$v_\pi$最近的点，注意，是理论上，最小化PBE得到的$\rm w_{TD}$很有可能与它不相等。</p>
 <script type="math/tex; mode=display">
 {\rm \overline{VE}}( {\bf w})=||\Pi v_\pi-v_\pi ||^2_\mu</script><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>好了，到此为止，我们已经初步了解了函数近似所带来的误差，和投影算子密切相关，我可以统称为投影误差。为了下一章中的投影误差分析，我们这里做了很多铺垫，下一章主要会结合论文讨论其他误差。</p>
 <p>最后强调两个概念:</p>
 <ol>
-<li><p><strong>我们DQN每次迭代最小化的是PBE，如果能够收敛，最后会收敛到定点$\rm w<em>{TD}$，这个点很有可能不是$\Phi$上的最优点$\Pi v</em>\pi$。</strong></p>
+<li><p><strong>我们DQN每次迭代最小化的是PBE，如果能够收敛，最后会收敛到定点$\rm w_{TD}$，这个点很有可能不是$\Phi$上的最优点$\Pi v_\pi$。</strong></p>
 </li>
-<li><p><strong>$\Pi v<em>\pi$是指的$v</em>\pi$离平面$\Phi$最近一点。它和$v<em>\pi$之间存在误差VE，而且VE很有可能不为0，除非$v</em>\pi$刚好在平面上。</strong></p>
+<li><p><strong>$\Pi v_\pi$是指的$v_\pi$离平面$\Phi$最近一点。它和$v_\pi$之间存在误差VE，而且VE很有可能不为0，除非$v_\pi$刚好在平面上。</strong></p>
 </li>
 </ol>
 <p>图上的其他内容大家可以自己详细阅读那一章节，这里就不赘述了。</p>

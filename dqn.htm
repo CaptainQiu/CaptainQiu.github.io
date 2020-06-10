@@ -307,9 +307,9 @@
 <p>可以看见Q-Learning是属于值函数近似算法中，蒙特卡洛方法和时间差分法相结合的算法。它在1989年被Watkins提出，可以说一出生就给强化学习带来了重要的突破。它的定义如下：</p>
 <script type="math/tex; mode=display">
 Q(S_t,A_t)\leftarrow Q(S_t,A_t)+\alpha[\underbrace{R_{t+1}+\gamma\max_aQ(S_{t+1},a)}_{q*}-Q(S_t,A_t)]</script><p>这里动作价值Q函数的目标就是逼近最优的$q*$，并且轨迹的行动策略与最终的$q*$是无关的。后面中括号的加和式表示的是 <strong>$q*$的贝尔曼最优方程近似形式</strong>。</p>
-<h3 id="Deep-Q-Learning"><a href="#Deep-Q-Learning" class="headerlink" title="Deep Q-Learning"></a>Deep Q-Learning</h3><p>如果要在连续的状态空间中计算Q函数$Q^{\pi}(s,a)$，使用Q表是不现实的选择，因为连续的状态空间会让Q表的存储空间变得非常大。那么我们可以用一个关于s和a的连续函数$Q<em>\theta(s,a)$去近似$Q^{\pi}(s,a)$。$Q</em>\theta(s,a)$ 是一个参数为$\theta$的函数，事已至此，路就很自然走到了神经网络的大门口，近似这种事就是神经网络的老本行。</p>
+<h3 id="Deep-Q-Learning"><a href="#Deep-Q-Learning" class="headerlink" title="Deep Q-Learning"></a>Deep Q-Learning</h3><p>如果要在连续的状态空间中计算Q函数$Q^{\pi}(s,a)$，使用Q表是不现实的选择，因为连续的状态空间会让Q表的存储空间变得非常大。那么我们可以用一个关于s和a的连续函数$Q_\theta(s,a)$去近似$Q^{\pi}(s,a)$。$Q_\theta(s,a)$ 是一个参数为$\theta$的函数，事已至此，路就很自然走到了神经网络的大门口，近似这种事就是神经网络的老本行。</p>
 <p>不管$Q^{\pi}(s,a)$是怎样一个复杂的函数，只要使用Deep Network，就有机会去近似它，说不定还能近似的很好。</p>
-<p>如果动作空间A是离散的,共有$m$个动作，$a<em>1,…,a_m$，那么我们可以定义$Q</em>\theta$是状态$s$的函数，输出是$m$个向量：</p>
+<p>如果动作空间A是离散的,共有$m$个动作，$a_1,…,a_m$，那么我们可以定义$Q_\theta$是状态$s$的函数，输出是$m$个向量：</p>
 <script type="math/tex; mode=display">
 Q_\theta(s)=\begin{bmatrix}
     Q_\theta(s,a_1)\\
@@ -327,7 +327,7 @@ Q_\theta(s)=\begin{bmatrix}
 L_i(\theta_i)=E_{s,a\sim\rho(\cdot)}[(y_i-Q(s,a;\theta_i))^2]</script><p>$L_i(\theta_i)$表示的第$i$次迭代的损失函数。仔细对比Q-Learning的定义，损失函数中的样本真实目标值$y_i$可以写成：</p>
 <script type="math/tex; mode=display">
 y_i=E_{s'\sim E}[r+\gamma\max_{a'}Q(s',a';\theta_{i-1})|s,a]</script><p>这就是当前时刻状态$s$和动作$a$确定的情况下，执行动作$a$，环境$E$会进入下一个时刻的状态$s’$；然后在$s’$状态下，计算最优动作价值函数$q*$。</p>
-<p>以上是2013年论文中的损失函数，我觉得其中有点含混不清的地方是目标值$y<em>i$中的$\theta</em>{i-1}$的下标。结合论文的叙述，它的意思是在第$i$次迭代计算$L<em>i$时，计算目标值使用的$\theta</em>{i-1}$是上一次迭代更新后的。问题是为什么不用第$i$次的，我查看了Sutton的《Reinforcement Learning》关于TD误差的章节，当前Q值和目标Q值使用的参数都是当前时刻的，并且在论文后面的算法伪代码中也没有关于下标的叙述，于是这个$i-1$下标就成了悬案。</p>
+<p>以上是2013年论文中的损失函数，我觉得其中有点含混不清的地方是目标值$y_i$中的$\theta_{i-1}$的下标。结合论文的叙述，它的意思是在第$i$次迭代计算$L_i$时，计算目标值使用的$\theta_{i-1}$是上一次迭代更新后的。问题是为什么不用第$i$次的，我查看了Sutton的《Reinforcement Learning》关于TD误差的章节，当前Q值和目标Q值使用的参数都是当前时刻的，并且在论文后面的算法伪代码中也没有关于下标的叙述，于是这个$i-1$下标就成了悬案。</p>
 <p>到了2015年，发表在Nature的论文中，增加了Target Net 改进方法，结合经验回放，将损失函数重新写成：</p>
 <script type="math/tex; mode=display">
 L_i(\theta_i)=E_{(s,a,r,s')\sim U(D)}[(r+\gamma\max_{a'}Q(s',a';\theta_{i}^{-})-Q(s,a;\theta_i))^2]</script><p>其中$(s,a,r,s’)\sim U(D)$表示样本从buffer D中使用统一采样的方式得到。$\theta_i^-$表示Target Net的网络参数，每隔$C$次迭代，就更新为$\theta_i$，并且在两次更新之间它是固定的。这次损失函数的表述更加清晰了。</p>

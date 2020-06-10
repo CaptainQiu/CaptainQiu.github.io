@@ -281,8 +281,8 @@
         <h2 id="Target-Net-是什么"><a href="#Target-Net-是什么" class="headerlink" title="Target Net 是什么"></a>Target Net 是什么</h2><p>要落俗套，首先解释下论文中的Target Net是做什么的。抄袭下论文的公式：</p>
 <script type="math/tex; mode=display">
 L_i(\theta_i)=E_{(s,a,r,s')\sim U(D)}[(r+\gamma\max_{a'}Q(s',a';\theta_{i}^{-})-Q(s,a;\theta_i))^2]  \tag{1}</script><p>这里的 $\theta^-$就是Target Net的参数。整个DQN模型存在两个独立的网络，分别叫做<br>普通Q网络，就是我们要优化的网络，我们会从它导出最优策略，普通Q网络的参数是$\theta$。另一个就是Target Net，它的是在计算TD误差时被使用的，而TD误差前两项的和就是TargetValue，因此这个网络被称为Target Net。两个网络是结构相同，参数独立的。只不过会每隔C个迭代步骤，就将$\theta$同步到$\theta^-$，没错,就是直接复制过去。</p>
-<h2 id="Target-Net-作用是什么"><a href="#Target-Net-作用是什么" class="headerlink" title="Target Net 作用是什么"></a>Target Net 作用是什么</h2><p>论文作者写了，为了提高训练的稳定性。为什么能提高稳定性，不知道。作者说了一个不太清楚的理由:当提升 $Q(s<em>{t},a</em>{t})$ 的时候，往往也会引起 $Q(s_{t+1},a)$ (对所有的a)的提升。这样一来，会引起目标值 $y_i$ 的提升，从而进一步导致网络可能不收敛。作者并没有详细阐述为什么DQN会引起这样的问题，其实也揭示了在强化学习领域，<strong>Function Approximation</strong>有诸多难以理论证明的点。</p>
-<p>在搜索网上对Target Net的解释，大体就是从提高稳定性进行说明，比较有代表性的观点是，仔细考察公式(1)，如果没有TargetNet，也就是计算TargetValue和优化网络都是一个网络$\theta<em>i$，假设$s,a$计算出的$Q(s,a)=1$ 而$TargetValue=2$，那么使用梯度下降法，让Q向TargetValue逼近，没有问题，这个时候参数$\theta</em>{i+1}$就此改变了，当同样的$s,a$再次参与训练时，由于$\theta_{i+1}$的改变,$TargetValue$也不一样了，变成了-1。那么网络又会让Q向-1逼近。引用那个朋友的话说，整个过程好像是在“追着一个移动的目标在跑，怎么都追不上”。因此会引起训练的不稳定。</p>
+<h2 id="Target-Net-作用是什么"><a href="#Target-Net-作用是什么" class="headerlink" title="Target Net 作用是什么"></a>Target Net 作用是什么</h2><p>论文作者写了，为了提高训练的稳定性。为什么能提高稳定性，不知道。作者说了一个不太清楚的理由:当提升 $Q(s_{t},a_{t})$ 的时候，往往也会引起 $Q(s_{t+1},a)$ (对所有的a)的提升。这样一来，会引起目标值 $y_i$ 的提升，从而进一步导致网络可能不收敛。作者并没有详细阐述为什么DQN会引起这样的问题，其实也揭示了在强化学习领域，<strong>Function Approximation</strong>有诸多难以理论证明的点。</p>
+<p>在搜索网上对Target Net的解释，大体就是从提高稳定性进行说明，比较有代表性的观点是，仔细考察公式(1)，如果没有TargetNet，也就是计算TargetValue和优化网络都是一个网络$\theta_i$，假设$s,a$计算出的$Q(s,a)=1$ 而$TargetValue=2$，那么使用梯度下降法，让Q向TargetValue逼近，没有问题，这个时候参数$\theta_{i+1}$就此改变了，当同样的$s,a$再次参与训练时，由于$\theta_{i+1}$的改变,$TargetValue$也不一样了，变成了-1。那么网络又会让Q向-1逼近。引用那个朋友的话说，整个过程好像是在“追着一个移动的目标在跑，怎么都追不上”。因此会引起训练的不稳定。</p>
 <p>第一次计算样本$(s,a,s’,r)$</p>
 <script type="math/tex; mode=display">
 Q(s,a;\theta_i)=1，r+\gamma\max_{a'}Q(s',a';\theta_{i})=2</script><p>第二次计算同样的样本$(s,a,s’,r)$</p>

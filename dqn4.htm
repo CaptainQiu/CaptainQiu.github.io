@@ -309,7 +309,7 @@ V(s)=\max_{a'}Q(s,a')</script><p>论文说Bellman backup算子$\cal T$ 在无限
 <h3 id="1-Function-Approximation-and-Convergence"><a href="#1-Function-Approximation-and-Convergence" class="headerlink" title="1.Function Approximation and Convergence"></a>1.Function Approximation and Convergence</h3><p>首先是我们最关心的函数近似对收敛性的影响，也就是我们上一章详细讲的投影误差相关的内容。这个实验使用Exact-FQI算法，在固定采样分布(均匀分布)的情况下，测试了不同容量的模型的Project $Q^*$ Error 和 FQI $Q^*$ Error。</p>
 <p><img src="/images/dqn4/figure1.png"></p>
 <p>&nbsp;</p>
-<p>第三章做的铺垫，就是为了这个图。Project $Q^*$ Error就是对应上一章里我们说的VE($\Pi v<em>\pi$ 和 $v</em>\pi$ 之间的距离)，FQI $Q^*$ Error对应上一章里的TD固定点 $w<em>{TD}$ 和 $v</em>\pi$ 之间的距离。</p>
+<p>第三章做的铺垫，就是为了这个图。Project $Q^*$ Error就是对应上一章里我们说的VE($\Pi v_\pi$ 和 $v_\pi$ 之间的距离)，FQI $Q^*$ Error对应上一章里的TD固定点 $w_{TD}$ 和 $v_\pi$ 之间的距离。</p>
 <p>Project $Q^*$ Error反映了模型本身的近似能力，如果这个值很大，说明模型容量不够。如果模型理论上能找到的最好的点与真实值函数的距离都很大，模型最后一定是欠拟合的，不收敛。</p>
 <p>FQI $Q^*$ Error反映的是模型使用FQI算法得到的解与真实值间的距离，上一章中说过，这点是使用Bellman算子迭代得到的不动点，它很有可能不是平面内最优的。这个误差一定大于VE。</p>
 <p>图中用于对比的Tabular是表格型模型，完全没有误差。很明显，容量越大的模型，两个误差都越小，并且模型的效果也越好。现象很容易解释，在没有过拟合的风险(使用均匀采样加权)的情况下，模型的拟合能力变强了。</p>
