@@ -46,15 +46,15 @@
   };
 </script>
 
-  <meta name="description" content="xgboost相对于GBDT的改动点在哪里？">
+  <meta name="description" content="xgboost的核心思想是什么？它每轮迭代拟合的是什么？它为什么要做这些改进？">
 <meta property="og:type" content="article">
-<meta property="og:title" content="xgboost理解(2) xgboost原理剖析">
+<meta property="og:title" content="xgboost理解(2) xgboost思想剖析">
 <meta property="og:url" content="https://qddmj.cn/xgboost2.htm">
 <meta property="og:site_name" content="Our Home">
-<meta property="og:description" content="xgboost相对于GBDT的改动点在哪里？">
+<meta property="og:description" content="xgboost的核心思想是什么？它每轮迭代拟合的是什么？它为什么要做这些改进？">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-06-10T06:28:05.000Z">
-<meta property="article:modified_time" content="2020-06-10T06:39:06.852Z">
+<meta property="article:modified_time" content="2020-06-16T07:33:28.736Z">
 <meta property="article:author" content="Captain Qiu">
 <meta property="article:tag" content="machine learning">
 <meta property="article:tag" content="gbdt">
@@ -73,7 +73,7 @@
   };
 </script>
 
-  <title>xgboost理解(2) xgboost原理剖析 | Our Home</title>
+  <title>xgboost理解(2) xgboost思想剖析 | Our Home</title>
   
 
 
@@ -210,7 +210,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          xgboost理解(2) xgboost原理剖析
+          xgboost理解(2) xgboost思想剖析
         </h1>
 
         <div class="post-meta">
@@ -219,10 +219,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-06-10 14:28:05 / Modified: 14:39:06" itemprop="dateCreated datePublished" datetime="2020-06-10T14:28:05+08:00">2020-06-10</time>
+              <time title="Created: 2020-06-10 14:28:05" itemprop="dateCreated datePublished" datetime="2020-06-10T14:28:05+08:00">2020-06-10</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-06-16 15:33:28" itemprop="dateModified" datetime="2020-06-16T15:33:28+08:00">2020-06-16</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -236,7 +242,7 @@
             </span>
 
           
-            <span id="/xgboost2.htm" class="post-meta-item leancloud_visitors" data-flag-title="xgboost理解(2) xgboost原理剖析" title="Views">
+            <span id="/xgboost2.htm" class="post-meta-item leancloud_visitors" data-flag-title="xgboost理解(2) xgboost思想剖析" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -257,7 +263,7 @@
   </span>
   
   
-            <div class="post-description">xgboost相对于GBDT的改动点在哪里？</div>
+            <div class="post-description">xgboost的核心思想是什么？它每轮迭代拟合的是什么？它为什么要做这些改进？</div>
 
         </div>
       </header>
@@ -268,7 +274,71 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h2 id="XGB的优势"><a href="#XGB的优势" class="headerlink" title="XGB的优势"></a>XGB的优势</h2><p>陈天奇的论文《XGBoost: A Scalable Tree Boosting System》开篇说了xgboost的几大优势，包括在kaggle比赛中夺冠的很多队伍都使用了xgboost和nn模型，主要得益于它在所有场景下的高度可扩展性，并且它的速度极快，比之前在单机上流行的解决方案要快ten times，一个数量级。不管是在比赛还是在工业应用中，模型越快优势越大，意味着可以训练更多轮次，可以尝试更多模型的组合，可以进行更多次的超参数搜索，得到的结果也会更好。论文总结，XGBoost的优势主要源自这几点：</p>
+<ol>
+<li>可以较好处理稀疏数据的树模型。</li>
+<li>有理论支撑的近似分位点快速计算框架。</li>
+<li>很有好的分布式优化和并行化手段。</li>
+</ol>
+<p>我们参照论文剖析xgboost的原理，来深入理解它的优势所在。</p>
+<h2 id="XGBoost拟合的是什么"><a href="#XGBoost拟合的是什么" class="headerlink" title="XGBoost拟合的是什么"></a>XGBoost拟合的是什么</h2><p>对于分类问题，XGBoost和GBDT一样，拟合的目标都是对数几率，实际上是回归问题，加上logistic函数转化为二分类问题。</p>
+<p>设样本集合为$\mathcal{D} =\{(x_i,y_i)\}(|D|=n,x_i \in \mathbb{R^m},y_i \in \mathbb{R})$,$y_i$为01二分类标签,那么预测值为:</p>
+<script type="math/tex; mode=display">
+\hat{ y}_i=\phi(x_i)=\sum^K_{k=1}f_k(x_i)</script><p>这里和GBDT一样，实际是拟合对数几率值,最终函数是由很多的基模型加起来的。假设损失函数为交叉熵损失函数，可以写成：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+l(y_i, \hat{y}_i)&=-[y_i\log{\sigma( \hat{y}_i)}+(1-y_i)\log(1-\sigma(\hat{y}_i))]\\
+\sigma(\hat{y}_i)&=\frac{1}{1+e^{-\hat{y}_i}}
+\end{aligned}</script><h2 id="牛顿法"><a href="#牛顿法" class="headerlink" title="牛顿法"></a>牛顿法</h2><p>首先看下牛顿法的推导过程。</p>
+<p>原始的二阶泰勒展开为：</p>
+<script type="math/tex; mode=display">
+f(x_{t+1})=f(x_t+\Delta x)\simeq f(x_t)+\Delta xf'(x_t)+\frac{1}{2}\Delta ^2xf''(x_t)</script><p>将一阶导数和二阶导数记为$g$和$h$:</p>
+<script type="math/tex; mode=display">
+f(x_{t+1})=f(x_t+\Delta x)\simeq f(x_t)+\Delta xg+\frac{1}{2}\Delta ^2xh</script><p>然后需要让$f(x)$极小，那么就要让后面两项之和极小。可令：</p>
+<script type="math/tex; mode=display">
+\frac{\partial (g\Delta x+\frac{1}{2}\Delta^2xh)}{\partial\Delta x}=0</script><p>求得</p>
+<script type="math/tex; mode=display">\Delta x=-\frac{g}{h}</script><p>则牛顿法的迭代式为：</p>
+<script type="math/tex; mode=display">
+x_{t+1}=x_t+\Delta x=x_t-\frac{g}{h}</script><h2 id="损失函数的二阶泰勒展开"><a href="#损失函数的二阶泰勒展开" class="headerlink" title="损失函数的二阶泰勒展开"></a>损失函数的二阶泰勒展开</h2><p>上一章中介绍了GBDT实际每轮树模型拟合的是上一次总模型的梯度值，总体看上去就是梯度下降法，而梯度下降法是从一阶泰勒展开式推导得到的，很自然的想到，如果对损失函数进行二阶泰勒近似，即使用牛顿法进行迭代，应该也是可以的。</p>
+<blockquote>
+<p>论文中并没有阐述为什么要用二阶泰勒展开，个人理解从GBDT过渡过来比较符合逻辑。</p>
+</blockquote>
+<p>GBDT拟合的是损失函数的负梯度：</p>
+<script type="math/tex; mode=display">
+r_{k}(x_i)=-[\frac{\partial L(y_i,f_{k-1}(x_i))}{\partial f_{k-1}(x_i)}]</script><p>我们来看XGBoost的二阶泰勒展开。</p>
+<p>XGBoost的损失函数中添加了正则项$\Omega(f_t)$：</p>
+<script type="math/tex; mode=display">
+\mathcal{L}^{(t)}=\sum^n_{i=1}l(y_i,\hat{y}_i^{(t-1)}+f_t(x_i))+\Omega(f_t)</script><p>将损失函数$\mathcal{L}$中的$f_t(x_i)$视为$\Delta x$，进行二阶泰勒展开：</p>
+<script type="math/tex; mode=display">
+\mathcal{L}^{(t)}\simeq\sum_{i=1}^{n}[l(y_i,\hat{y}_i^{(t-1)})+g_if_t(x_i)+\frac{1}{2}h_if^2_t(x_i)]+\Omega(f_t)</script><p>其中$g_i=\partial_{\hat{y}^{(t-1)}}l(y_i,\hat{y}^{(t-1)}))$是一阶导数，$h_i=\partial^2_{\hat{y}^{(t-1)}}l(y_i,\hat{y}^{(t-1)}))$是二阶导数。</p>
+<p>因为$l(y_i,\hat{y}_{i}^{(t-1)}))$是上一次迭代的损失，在本次迭代中视为常数，最小化本次损失函数时可以去掉。</p>
+<p>当基学习器为CART的时候，我们可以把基函数写成$f(x)=w_{q(x)}(q:\mathbb{R}^m \rightarrow T,w \in \mathbb{R}^T)$,其中T是树的叶子节点数量，$w_{q(x)}$表示将x映射到第q(x)个叶子节点上，并且该叶子节点权重是w。</p>
+<p>因此可以定义上方的正则项为:</p>
+<script type="math/tex; mode=display">
+\Omega(f)=\gamma T+\frac{1}{2}\lambda ||w||^2</script><p>此正则项要限制每棵树的叶子节点数量和权重的大小。</p>
+<p>结合上述公式对损失函数做进一步整理得到：</p>
+<script type="math/tex; mode=display">
+\tilde{\mathcal{L}}^{(t)}=\sum_{i=1}^n[g_if_t(x_i)+\frac{1}{2}h_if_t^2(x_i)]+\gamma T+\frac{1}{2} \lambda \sum^T_{j=1}w_j^2</script><blockquote>
+<p>此时式中只有当前待求树模型相关的项，其余项均作为常数去除了。</p>
+</blockquote>
+<p>然后设置集合$I_j=\{i|q(x_i)=j\}$为所有落到叶子j上的样本集合，将上式化简为：</p>
+<script type="math/tex; mode=display">
+\tilde{L}^{(t)}=\sum_{j=1}^T[(\sum_{i\in I_j}g_i)w_j+\frac{1}{2}(\sum_{i\in I_j}h_i+\lambda)w^2_j]+\gamma T</script><p>和牛顿法一样，求w让损失函数极小，也就是让中间的二次方程最小即可，通过导数等于0求得w:</p>
+<script type="math/tex; mode=display">
+w^*_j=-\frac{\sum_{i\in I_j}g_i}{\sum_{i\in I_j}h_i+\lambda}</script><p>那么损失函数最小为：</p>
+<script type="math/tex; mode=display">
+\tilde{\mathcal{L}}^{(t)}(q)=-\frac{1}{2}\sum_{j=1}^T \frac{(\sum_{i\in I_j}g_i)^2}{\sum_{i\in I_j}h_i+\lambda} + \gamma T</script><p>写到这里，其实已经能够看出一些端倪，这棵树的最优权重w的形式，和牛顿法中的迭代增量$\Delta x$几乎一样，区别有两点：</p>
+<ol>
+<li><p>分子分母使用的是所有落在该叶子节点的一阶二阶导数之和，可以类比批随机梯度下降法(Mini-batch SGD) 。</p>
+</li>
+<li><p>分母加上了正则化系数 $\lambda$ ,系数越大，$w$的绝对值就会越小。</p>
+</li>
+</ol>
+<p>结合上面推导过程和结果的形式来说，我们可以下结论，<strong>XGBoost每棵树拟合的就是牛顿法中的迭代增量$\Delta x$，每棵树加和的形式也就是迭代的形式，损失函数根据每棵树的加和逐渐降低。</strong></p>
+<h2 id="使用二阶导数的动机"><a href="#使用二阶导数的动机" class="headerlink" title="使用二阶导数的动机"></a>使用二阶导数的动机</h2><p>讨论到这，有个问题不得不讨论，为什么XGBoost会想到用牛顿法，牛顿法相对于梯度下降法有什么好处呢？从迭代次数看，牛顿法会更少次数到达最优点，但是相应的，计算二阶导数矩阵的计算量也很大，总体时间开销并不比梯度下降要少。</p>
+<p>这个问题在知乎和stackoverflow上均有讨论，我个人理解，使用二阶导数的主要动机在于论文3.3节的Weighted Quantile Sketch，在寻找候选切分点的时候，需要用到二阶导数的信息。既然在选择切分点时候要用到，做计算的时候也可以用到求w的步骤中。</p>
+<p>陈老师是为了更优的选择切分点才使用了二阶导数，加之前面的牛顿法也要用到二阶导数，两者带来的收益是要高于单纯用一阶导数的。并且，牛顿法不需要指定学习速率，是自适应步长的迭代算法，也比单纯使用梯度下降要更合适。</p>
+
     </div>
 
     
@@ -352,6 +422,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#XGB的优势"><span class="nav-number">1.</span> <span class="nav-text">XGB的优势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XGBoost拟合的是什么"><span class="nav-number">2.</span> <span class="nav-text">XGBoost拟合的是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#牛顿法"><span class="nav-number">3.</span> <span class="nav-text">牛顿法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#损失函数的二阶泰勒展开"><span class="nav-number">4.</span> <span class="nav-text">损失函数的二阶泰勒展开</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用二阶导数的动机"><span class="nav-number">5.</span> <span class="nav-text">使用二阶导数的动机</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
