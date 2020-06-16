@@ -54,7 +54,7 @@
 <meta property="og:description" content="xgboost的核心思想是什么？它每轮迭代拟合的是什么？它为什么要做这些改进？">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-06-10T06:28:05.000Z">
-<meta property="article:modified_time" content="2020-06-16T07:33:28.736Z">
+<meta property="article:modified_time" content="2020-06-16T07:37:14.310Z">
 <meta property="article:author" content="Captain Qiu">
 <meta property="article:tag" content="machine learning">
 <meta property="article:tag" content="gbdt">
@@ -227,7 +227,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-16 15:33:28" itemprop="dateModified" datetime="2020-06-16T15:33:28+08:00">2020-06-16</time>
+                <time title="Modified: 2020-06-16 15:37:14" itemprop="dateModified" datetime="2020-06-16T15:37:14+08:00">2020-06-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -281,7 +281,7 @@
 <li>很有好的分布式优化和并行化手段。</li>
 </ol>
 <p>我们参照论文剖析xgboost的原理，来深入理解它的优势所在。</p>
-<h2 id="XGBoost拟合的是什么"><a href="#XGBoost拟合的是什么" class="headerlink" title="XGBoost拟合的是什么"></a>XGBoost拟合的是什么</h2><p>对于分类问题，XGBoost和GBDT一样，拟合的目标都是对数几率，实际上是回归问题，加上logistic函数转化为二分类问题。</p>
+<h2 id="XGBoost拟合的是什么"><a href="#XGBoost拟合的是什么" class="headerlink" title="XGBoost拟合的是什么"></a>XGBoost拟合的是什么</h2><p>对于分类问题，XGBoost和GBDT一样，最终的拟合目标都是对数几率，实际上是回归问题，加上logistic函数转化为二分类问题。</p>
 <p>设样本集合为$\mathcal{D} =\{(x_i,y_i)\}(|D|=n,x_i \in \mathbb{R^m},y_i \in \mathbb{R})$,$y_i$为01二分类标签,那么预测值为:</p>
 <script type="math/tex; mode=display">
 \hat{ y}_i=\phi(x_i)=\sum^K_{k=1}f_k(x_i)</script><p>这里和GBDT一样，实际是拟合对数几率值,最终函数是由很多的基模型加起来的。假设损失函数为交叉熵损失函数，可以写成：</p>
@@ -289,17 +289,7 @@
 \begin{aligned}
 l(y_i, \hat{y}_i)&=-[y_i\log{\sigma( \hat{y}_i)}+(1-y_i)\log(1-\sigma(\hat{y}_i))]\\
 \sigma(\hat{y}_i)&=\frac{1}{1+e^{-\hat{y}_i}}
-\end{aligned}</script><h2 id="牛顿法"><a href="#牛顿法" class="headerlink" title="牛顿法"></a>牛顿法</h2><p>首先看下牛顿法的推导过程。</p>
-<p>原始的二阶泰勒展开为：</p>
-<script type="math/tex; mode=display">
-f(x_{t+1})=f(x_t+\Delta x)\simeq f(x_t)+\Delta xf'(x_t)+\frac{1}{2}\Delta ^2xf''(x_t)</script><p>将一阶导数和二阶导数记为$g$和$h$:</p>
-<script type="math/tex; mode=display">
-f(x_{t+1})=f(x_t+\Delta x)\simeq f(x_t)+\Delta xg+\frac{1}{2}\Delta ^2xh</script><p>然后需要让$f(x)$极小，那么就要让后面两项之和极小。可令：</p>
-<script type="math/tex; mode=display">
-\frac{\partial (g\Delta x+\frac{1}{2}\Delta^2xh)}{\partial\Delta x}=0</script><p>求得</p>
-<script type="math/tex; mode=display">\Delta x=-\frac{g}{h}</script><p>则牛顿法的迭代式为：</p>
-<script type="math/tex; mode=display">
-x_{t+1}=x_t+\Delta x=x_t-\frac{g}{h}</script><h2 id="损失函数的二阶泰勒展开"><a href="#损失函数的二阶泰勒展开" class="headerlink" title="损失函数的二阶泰勒展开"></a>损失函数的二阶泰勒展开</h2><p>上一章中介绍了GBDT实际每轮树模型拟合的是上一次总模型的梯度值，总体看上去就是梯度下降法，而梯度下降法是从一阶泰勒展开式推导得到的，很自然的想到，如果对损失函数进行二阶泰勒近似，即使用牛顿法进行迭代，应该也是可以的。</p>
+\end{aligned}</script><h2 id="损失函数的二阶泰勒展开"><a href="#损失函数的二阶泰勒展开" class="headerlink" title="损失函数的二阶泰勒展开"></a>损失函数的二阶泰勒展开</h2><p>上一章中介绍了GBDT实际每轮树模型拟合的是上一次总模型的梯度值，总体看上去就是梯度下降法，而梯度下降法是从一阶泰勒展开式推导得到的，很自然的想到，如果对损失函数进行二阶泰勒近似，即使用牛顿法进行迭代，应该也是可以的。</p>
 <blockquote>
 <p>论文中并没有阐述为什么要用二阶泰勒展开，个人理解从GBDT过渡过来比较符合逻辑。</p>
 </blockquote>
@@ -334,11 +324,20 @@ w^*_j=-\frac{\sum_{i\in I_j}g_i}{\sum_{i\in I_j}h_i+\lambda}</script><p>那么�
 <li><p>分母加上了正则化系数 $\lambda$ ,系数越大，$w$的绝对值就会越小。</p>
 </li>
 </ol>
-<p>结合上面推导过程和结果的形式来说，我们可以下结论，<strong>XGBoost每棵树拟合的就是牛顿法中的迭代增量$\Delta x$，每棵树加和的形式也就是迭代的形式，损失函数根据每棵树的加和逐渐降低。</strong></p>
+<p>结合上面推导过程和结果的形式来说，我们可以下结论，<strong>XGBoost每棵树拟合的就是牛顿法中的迭代增量$\Delta x$，每棵树加和的形式也就是迭代的形式，损失函数根据每棵树的加和逐渐降低。</strong> (牛顿法推导见本文底部附录)</p>
 <h2 id="使用二阶导数的动机"><a href="#使用二阶导数的动机" class="headerlink" title="使用二阶导数的动机"></a>使用二阶导数的动机</h2><p>讨论到这，有个问题不得不讨论，为什么XGBoost会想到用牛顿法，牛顿法相对于梯度下降法有什么好处呢？从迭代次数看，牛顿法会更少次数到达最优点，但是相应的，计算二阶导数矩阵的计算量也很大，总体时间开销并不比梯度下降要少。</p>
 <p>这个问题在知乎和stackoverflow上均有讨论，我个人理解，使用二阶导数的主要动机在于论文3.3节的Weighted Quantile Sketch，在寻找候选切分点的时候，需要用到二阶导数的信息。既然在选择切分点时候要用到，做计算的时候也可以用到求w的步骤中。</p>
 <p>陈老师是为了更优的选择切分点才使用了二阶导数，加之前面的牛顿法也要用到二阶导数，两者带来的收益是要高于单纯用一阶导数的。并且，牛顿法不需要指定学习速率，是自适应步长的迭代算法，也比单纯使用梯度下降要更合适。</p>
-
+<h2 id="附录-牛顿法"><a href="#附录-牛顿法" class="headerlink" title="附录 牛顿法"></a>附录 牛顿法</h2><p>原始的二阶泰勒展开为：</p>
+<script type="math/tex; mode=display">
+f(x_{t+1})=f(x_t+\Delta x)\simeq f(x_t)+\Delta xf'(x_t)+\frac{1}{2}\Delta ^2xf''(x_t)</script><p>将一阶导数和二阶导数记为$g$和$h$:</p>
+<script type="math/tex; mode=display">
+f(x_{t+1})=f(x_t+\Delta x)\simeq f(x_t)+\Delta xg+\frac{1}{2}\Delta ^2xh</script><p>然后需要让$f(x)$极小，那么就要让后面两项之和极小。可令：</p>
+<script type="math/tex; mode=display">
+\frac{\partial (g\Delta x+\frac{1}{2}\Delta^2xh)}{\partial\Delta x}=0</script><p>求得</p>
+<script type="math/tex; mode=display">\Delta x=-\frac{g}{h}</script><p>则牛顿法的迭代式为：</p>
+<script type="math/tex; mode=display">
+x_{t+1}=x_t+\Delta x=x_t-\frac{g}{h}</script>
     </div>
 
     
@@ -422,7 +421,7 @@ w^*_j=-\frac{\sum_{i\in I_j}g_i}{\sum_{i\in I_j}h_i+\lambda}</script><p>那么�
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#XGB的优势"><span class="nav-number">1.</span> <span class="nav-text">XGB的优势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XGBoost拟合的是什么"><span class="nav-number">2.</span> <span class="nav-text">XGBoost拟合的是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#牛顿法"><span class="nav-number">3.</span> <span class="nav-text">牛顿法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#损失函数的二阶泰勒展开"><span class="nav-number">4.</span> <span class="nav-text">损失函数的二阶泰勒展开</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用二阶导数的动机"><span class="nav-number">5.</span> <span class="nav-text">使用二阶导数的动机</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#XGB的优势"><span class="nav-number">1.</span> <span class="nav-text">XGB的优势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XGBoost拟合的是什么"><span class="nav-number">2.</span> <span class="nav-text">XGBoost拟合的是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#损失函数的二阶泰勒展开"><span class="nav-number">3.</span> <span class="nav-text">损失函数的二阶泰勒展开</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用二阶导数的动机"><span class="nav-number">4.</span> <span class="nav-text">使用二阶导数的动机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#附录-牛顿法"><span class="nav-number">5.</span> <span class="nav-text">附录 牛顿法</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
