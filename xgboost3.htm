@@ -46,17 +46,17 @@
   };
 </script>
 
-  <meta name="description" content="xgboost中两个亮点,分裂点的选取和整个XGB算法的并行化，">
+  <meta name="description" content="xgboost中两个亮点：分裂点的选取和整个XGB算法的并行化。另外还有缺失值的处理">
 <meta property="og:type" content="article">
-<meta property="og:title" content="xgboost理解(3) xgboost分裂点选取和并行化">
+<meta property="og:title" content="xgboost理解(3) xgboost分裂点选取、缺失值处理和并行化">
 <meta property="og:url" content="https://qddmj.cn/xgboost3.htm">
 <meta property="og:site_name" content="Our Home">
-<meta property="og:description" content="xgboost中两个亮点,分裂点的选取和整个XGB算法的并行化，">
+<meta property="og:description" content="xgboost中两个亮点：分裂点的选取和整个XGB算法的并行化。另外还有缺失值的处理">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://qddmj.cn/images/xgb3/alg1.png">
 <meta property="og:image" content="https://qddmj.cn/images/xgb3/alg2.png">
 <meta property="article:published_time" content="2020-06-16T06:28:05.000Z">
-<meta property="article:modified_time" content="2020-06-18T02:36:47.189Z">
+<meta property="article:modified_time" content="2020-06-18T12:12:06.087Z">
 <meta property="article:author" content="Captain Qiu">
 <meta property="article:tag" content="machine learning">
 <meta property="article:tag" content="gbdt">
@@ -76,7 +76,7 @@
   };
 </script>
 
-  <title>xgboost理解(3) xgboost分裂点选取和并行化 | Our Home</title>
+  <title>xgboost理解(3) xgboost分裂点选取、缺失值处理和并行化 | Our Home</title>
   
 
 
@@ -213,7 +213,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          xgboost理解(3) xgboost分裂点选取和并行化
+          xgboost理解(3) xgboost分裂点选取、缺失值处理和并行化
         </h1>
 
         <div class="post-meta">
@@ -230,7 +230,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-18 10:36:47" itemprop="dateModified" datetime="2020-06-18T10:36:47+08:00">2020-06-18</time>
+                <time title="Modified: 2020-06-18 20:12:06" itemprop="dateModified" datetime="2020-06-18T20:12:06+08:00">2020-06-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -245,7 +245,7 @@
             </span>
 
           
-            <span id="/xgboost3.htm" class="post-meta-item leancloud_visitors" data-flag-title="xgboost理解(3) xgboost分裂点选取和并行化" title="Views">
+            <span id="/xgboost3.htm" class="post-meta-item leancloud_visitors" data-flag-title="xgboost理解(3) xgboost分裂点选取、缺失值处理和并行化" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -266,7 +266,7 @@
   </span>
   
   
-            <div class="post-description">xgboost中两个亮点,分裂点的选取和整个XGB算法的并行化，</div>
+            <div class="post-description">xgboost中两个亮点：分裂点的选取和整个XGB算法的并行化。另外还有缺失值的处理</div>
 
         </div>
       </header>
@@ -280,7 +280,10 @@
         <p>论文的第三节阐述了一种新的分裂点寻找算法，我们从CART开始一步步看XGB是如何做的。</p>
 <h2 id="CART的分裂点选取"><a href="#CART的分裂点选取" class="headerlink" title="CART的分裂点选取"></a>CART的分裂点选取</h2><p>单棵树模型的核心内容就是如何选择分裂点，其实寻找最优的树结构是NP难问题，我们只能采用启发式方法进行，比如贪心算法。对于分类树ID3和C4.5来说，每次分裂都选取信息熵增益最大的特征和特征值进行分裂，对于CART树来说，每次遍历特征和特征值，找到使平方差函数最小的点作为分裂点。</p>
 <p>假设样本的特征有k维特征，一共有n个样本，意味着每次寻找分裂点的时间复杂度为$O(kn)$，如果树的深度为d,那么每一层都要进行一遍分裂点的寻找，时间复杂度就变成了$O(knd)$，除此之外，每一维特征都需要进行排序，最终的时间复杂度为$O(knd+kn\log(n))=O(kn(d+\log(n)))$。</p>
-<p>可以说这个复杂度是很高的，当样本数量很大，并且维度k很大，整个算法运行速度极慢。</p>
+<blockquote>
+<p>粗略计算，关于深度d那部分没有细想，肯定有问题。</p>
+</blockquote>
+<p>可以说它的复杂度是很高的，当样本数量很大、维度k很大时，整个算法运行速度极慢。</p>
 <h2 id="XGB的分裂点选取"><a href="#XGB的分裂点选取" class="headerlink" title="XGB的分裂点选取"></a>XGB的分裂点选取</h2><p>XGB不同于CART的地方在于，分裂使用的标准不一样。</p>
 <p>在上一章中介绍过，论文推导出了损失函数的最小值：</p>
 <script type="math/tex; mode=display">
@@ -288,13 +291,31 @@
 <script type="math/tex; mode=display">
 \mathcal{L}_{split}=\frac{1}{2}[\frac{(\sum_{i\in I_L}g_i)^2}{\sum_{i\in I_L}h_i+\lambda}+\frac{(\sum_{i\in I_R}g_i)^2}{\sum_{i\in I_R}h_i+\lambda}-\frac{(\sum_{i\in I}g_i)^2}{\sum_{i\in I}h_i+\lambda}]-\gamma</script><p>和信息熵增益意思一样，假设在这个候选点分裂，损失函数降低的数值是多少，我们选取能使损失函数降低最多的候选点进行分裂即可。论文给的算法流程如下图所示：</p>
 <p><img src="/images/xgb3/alg1.png" width="70%" height="70%"></p>
-<p>论文称此算法为精确贪心算法，因为每次寻找分裂点都要遍历所有样本的特征值，效果是最好的。</p>
+<p>论文称此算法为“精确贪心算法”，因为每次寻找分裂点都要遍历所有样本的特征值，效果相对来说是最好的。</p>
 <blockquote>
 <p>虽然叫精确贪心算法，但仍然是启发式算法，得到的树结构不是全局最优的。</p>
 </blockquote>
 <p>精确贪心算法的时间复杂度和CART一样，比较耗时，当样本特别多的时候，排序和遍历都很困难，因此需要使用一些优化手段，一个常用的优化手段是对连续型特征值进行分箱操作，每一段的交界点就是候选点，这样能大幅度减少遍历操作的时间，论文称为近似切分点算法：</p>
 <p><img src="/images/xgb3/alg2.png" width="70%" height="70%"></p>
-<p>问题就变成了如何寻找候选点，常用的方式是将分位点作为候选点，</p>
+<p>问题就变成了如何寻找候选点，常用的方式是将分位点作为候选点，如果要寻找精确分位点，就需要对特征值进行排序，比较耗时，尤其是当特征数量特别大，不能一次性加载到内存中，处理起来比较麻烦，每次都需要自己去写相应的处理函数。</p>
+<p>XGBoost提供了一整套解决方案叫做”Weighted Quantile Sketch”，它大概的功能是，可以不用做全局的排序，充分并行化处理，找到有精度保证的“近似分位点”，在附录中有详细的理论证明，这个方案源自GK Summary算法和Fast Algorithm for GK Summary，比较复杂，我们略过实际处理的细节，只看核心思想。</p>
+<p>我们不需要精确的分位点作为候选点，只需要近似分位点就可以，保证误差在一定范围内，这样可以大大减小排序的时间复杂度。对于下面一列排序好的特征：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+value&:&1&,&4&,&8&,&10&,&15&,&16&,&20&,&20&,&21&,&25& \\
+rank&:&1&,&2&,&3&,&4&,&5&,&6&,&7&,&8&,&9&,&10&
+
+\end{aligned}</script><p>精确的$\frac{1}{2}$分位点在rank=5的位置。</p>
+<p>近似分位点称为$\epsilon-approximate \ \phi-quantiles$，意思就是，在给定误差$\epsilon$的情况下，给出一个分位点集合，集合中的点在精确的分位点附近。</p>
+<p>比如$\epsilon=0.1$的时候，$0.5$近似分位点rank和value的集合为$rank=\{4,5,6\} value=\{10,15,16\}$</p>
+<p>对于候选点选择任务来说，精度满足一定范围即可。</p>
+<p>除了“近似”这个特性，还有“权重”。权重指的是每个样本都会带有一个权重，选取分位点的时候，需要按权重进行计算：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+value&:&1&,&4&,&8&,&10&,&15&,&16&,&20&,&20&,&21&,&25& \\
+rank&:&1&,&2&,&3&,&4&,&5&,&6&,&7&,&8&,&9&,&10&\\
+weight:&:&0.1&,&0.1&,&0.1&,&0.1&,&0.4&,&0.1&,&0.1&,&0.1&,&0.1&,&0.4&
+\end{aligned}</script><p>这样的话，0.25分位点就是$rank=4$，0.5分位点是$rank=5$。<br>可以看见，权重会对分位点的位置产生很大的影响，我们用什么作为样本的权重比较合适呢？</p>
 
     </div>
 
