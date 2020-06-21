@@ -55,8 +55,10 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://qddmj.cn/images/xgb3/alg1.png">
 <meta property="og:image" content="https://qddmj.cn/images/xgb3/alg2.png">
+<meta property="og:image" content="https://qddmj.cn/images/xgb3/second_ord.png">
+<meta property="og:image" content="https://qddmj.cn/images/xgb3/alg3.png">
 <meta property="article:published_time" content="2020-06-16T06:28:05.000Z">
-<meta property="article:modified_time" content="2020-06-18T12:12:06.087Z">
+<meta property="article:modified_time" content="2020-06-21T17:09:40.807Z">
 <meta property="article:author" content="Captain Qiu">
 <meta property="article:tag" content="machine learning">
 <meta property="article:tag" content="gbdt">
@@ -230,7 +232,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-18 20:12:06" itemprop="dateModified" datetime="2020-06-18T20:12:06+08:00">2020-06-18</time>
+                <time title="Modified: 2020-06-22 01:09:40" itemprop="dateModified" datetime="2020-06-22T01:09:40+08:00">2020-06-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -279,7 +281,7 @@
       
         <p>论文的第三节阐述了一种新的分裂点寻找算法，我们从CART开始一步步看XGB是如何做的。</p>
 <h2 id="CART的分裂点选取"><a href="#CART的分裂点选取" class="headerlink" title="CART的分裂点选取"></a>CART的分裂点选取</h2><p>单棵树模型的核心内容就是如何选择分裂点，其实寻找最优的树结构是NP难问题，我们只能采用启发式方法进行，比如贪心算法。对于分类树ID3和C4.5来说，每次分裂都选取信息熵增益最大的特征和特征值进行分裂，对于CART树来说，每次遍历特征和特征值，找到使平方差函数最小的点作为分裂点。</p>
-<p>假设样本的特征有k维特征，一共有n个样本，意味着每次寻找分裂点的时间复杂度为$O(kn)$，如果树的深度为d,那么每一层都要进行一遍分裂点的寻找，时间复杂度就变成了$O(knd)$，除此之外，每一维特征都需要进行排序，最终的时间复杂度为$O(knd+kn\log(n))=O(kn(d+\log(n)))$。</p>
+<p>假设样本的特征有k维特征，一共有n个样本，意味着每次寻找分裂点的时间复杂度为O(kn)，如果树的深度为d,那么每一层都要进行一遍分裂点的寻找，时间复杂度就变成了O(knd)，除此之外，每一维特征都需要进行排序，最终的时间复杂度为$O(knd+kn\log(n))=O(kn(d+\log(n)))$。</p>
 <blockquote>
 <p>粗略计算，关于深度d那部分没有细想，肯定有问题。</p>
 </blockquote>
@@ -298,25 +300,171 @@
 <p>精确贪心算法的时间复杂度和CART一样，比较耗时，当样本特别多的时候，排序和遍历都很困难，因此需要使用一些优化手段，一个常用的优化手段是对连续型特征值进行分箱操作，每一段的交界点就是候选点，这样能大幅度减少遍历操作的时间，论文称为近似切分点算法：</p>
 <p><img src="/images/xgb3/alg2.png" width="70%" height="70%"></p>
 <p>问题就变成了如何寻找候选点，常用的方式是将分位点作为候选点，如果要寻找精确分位点，就需要对特征值进行排序，比较耗时，尤其是当特征数量特别大，不能一次性加载到内存中，处理起来比较麻烦，每次都需要自己去写相应的处理函数。</p>
-<p>XGBoost提供了一整套解决方案叫做”Weighted Quantile Sketch”，它大概的功能是，可以不用做全局的排序，充分并行化处理，找到有精度保证的“近似分位点”，在附录中有详细的理论证明，这个方案源自GK Summary算法和Fast Algorithm for GK Summary，比较复杂，我们略过实际处理的细节，只看核心思想。</p>
+<p>XGBoost提供了一整套解决方案叫做”Weighted Quantile Sketch”，它大概的功能是，可以在流式数据中，找到有精度保证的“近似分位点”，在论文的补充材料中有详细的理论证明，这个方案源自GK Summary算法和Fast Algorithm for GK Summary，比较复杂，我们略过实际处理的细节，只看核心思想。</p>
 <p>我们不需要精确的分位点作为候选点，只需要近似分位点就可以，保证误差在一定范围内，这样可以大大减小排序的时间复杂度。对于下面一列排序好的特征：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-value&:&1&,&4&,&8&,&10&,&15&,&16&,&20&,&20&,&21&,&25& \\
-rank&:&1&,&2&,&3&,&4&,&5&,&6&,&7&,&8&,&9&,&10&
-
-\end{aligned}</script><p>精确的$\frac{1}{2}$分位点在rank=5的位置。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>value</td>
+<td>1</td>
+<td>4</td>
+<td>8</td>
+<td>10</td>
+<td>15</td>
+<td>16</td>
+<td>20</td>
+<td>20</td>
+<td>21</td>
+<td>25</td>
+</tr>
+<tr>
+<td>rank</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+<td>8</td>
+<td>9</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>精确的$\frac{1}{2}$分位点在rank=5的位置。</p>
 <p>近似分位点称为$\epsilon-approximate \ \phi-quantiles$，意思就是，在给定误差$\epsilon$的情况下，给出一个分位点集合，集合中的点在精确的分位点附近。</p>
 <p>比如$\epsilon=0.1$的时候，$0.5$近似分位点rank和value的集合为$rank=\{4,5,6\} value=\{10,15,16\}$</p>
 <p>对于候选点选择任务来说，精度满足一定范围即可。</p>
 <p>除了“近似”这个特性，还有“权重”。权重指的是每个样本都会带有一个权重，选取分位点的时候，需要按权重进行计算：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>value</td>
+<td>1</td>
+<td>4</td>
+<td>8</td>
+<td>10</td>
+<td>15</td>
+<td>16</td>
+<td>20</td>
+<td>20</td>
+<td>21</td>
+<td>25</td>
+</tr>
+<tr>
+<td>rank</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+<td>8</td>
+<td>9</td>
+<td>10</td>
+</tr>
+<tr>
+<td>weight</td>
+<td>0.1</td>
+<td>0.1</td>
+<td>0.1</td>
+<td>0.1</td>
+<td>0.4</td>
+<td>0.1</td>
+<td>0.1</td>
+<td>0.1</td>
+<td>0.1</td>
+<td>0.4</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这样的话，0.25分位点就是$rank=4$，0.5分位点是$rank=5$。<br>可以看见，权重会对分位点的位置产生很大的影响，我们用什么作为样本的权重比较合适呢？</p>
+<p>论文中使用了样本的二阶导数作为权重，它是这样推导的，把公式：</p>
+<script type="math/tex; mode=display">
+\tilde{\mathcal{L}}^{(t)}=\sum_{i=1}^n[g_if_t(x_i)+\frac{1}{2}h_if_t^2(x_i)]+\Omega(f_t)</script><p>进行配方，得到：</p>
+<script type="math/tex; mode=display">
+\tilde{\mathcal{L}}^{(t)}=\sum_{i=1}^n \frac{1}{2}h_i(f_t(x_i)+\frac{g_i}{h_i})^2+\Omega(f_t)</script><p>可以看到，损失函数实际是按照$h_i$进行加权的，如果一个样本的$h_i$越小，那么这个样本对损失函数的影响越小。反之，样本的$h_i$越大，对损失函数影响越大。更具体一些，假如$\mathcal{L}$是平方差损失函数，那么$\mathcal{L}$关于$f_t$的二阶导数是常数$h_i=2$。如果$\mathcal{L}$是交叉熵损失函数，那么它的二阶导数是$h_i=\sigma(f_t)(1-\sigma(f_t))$，其中$\sigma(\cdot)$是sigmoid函数，取值范围(0,1)，因此$h_i$可以看做是一个开口向下的二次函数，在$\sigma(f_t)=0.5$时取得最大值，在$\sigma(f_t)=1\  or\  0$时取得最小值。</p>
+<blockquote>
+<p>$h_i$的推导见<a href="#jump">附录</a></p>
+</blockquote>
+<p>这是一个很有趣又符合逻辑的解释，当$\sigma(f_t)$取值为0.5左右时，表示这个样本在上一轮迭代中很难进行分类，处于正负类交界处，同时$h_i$处于较大值，这类样本对损失函数的影响较大，本次应该重点照顾。将$h_i$作为样本权重，在分位点划分的时候，较大的权重会让这个样本被分的“更细”。</p>
+<p>如果觉得抽象可以看下面这个例子：</p>
+<p><img src="/images/xgb3/second_ord.png" width="70%" height="70%"></p>
+<p>每个小方格代表一个样本，一列方格已经按照特征值排序，方格内的数值是每个样本的二阶导数$h_i$，红色方格是按25%、50%、75%划分的分位点。上面一组没有使用权重，正常划分，下方是按照权重划分，可以看到，我们希望重点照顾的蓝色方块因为权重高，被单独划在一个集合，这样它可以落在相对浅的叶子节点，可以降低分错的概率。</p>
+<blockquote>
+<p>为什么在浅叶子节点就能降低分错的概率？个人理解，每一轮生成的树模型都是有固定最大深度的，例如6层，如果这个样本分对需要7层，那么它可能在6层时仍然和其他样本混在一起，这个叶子的值不是最优值。如果能在第四层得到它的最优值，就加大了它分对的概率。</p>
+</blockquote>
+<p>将权重的特性和之前提到的Fast Algorithm for GK Summary算法结合起来，就得到了”Weighted Quantile Sketch”，后者主要是提供快速的近似分位点查找。</p>
+<h2 id="缺失值处理"><a href="#缺失值处理" class="headerlink" title="缺失值处理"></a>缺失值处理</h2><p>XGB的缺失值处理也很有特点。模型会学习到每个缺失特征值分裂的默认方向，算法如下所示：</p>
+<p><img src="/images/xgb3/alg3.png" width="70%" height="70%"></p>
+<p>在每次计算最佳分裂点的时候，将所有缺失该特征的样本分到左边计算一次，再都分到右边计算一次，取最大收益作为默认的分裂方向。训练完毕后，如果要预测的样本值缺失某个特征，就会按照之前学习的默认分裂方向分到对应的分支。如果训练时没有缺失值但是预测时有，就默认分向右分支。</p>
+<h2 id="并行化"><a href="#并行化" class="headerlink" title="并行化"></a>并行化</h2><p> 除了上述这些算法特性，XGB在工程上也优化了很多，尤其是针对分布式、并行化做了很多优化。整个算法最耗时的步骤是分位点查找，涉及到海量数据的排序问题，论文针对这部分做了两方面的优化。</p>
+<h3 id="1-Column-Block-for-Parallel-Learning"><a href="#1-Column-Block-for-Parallel-Learning" class="headerlink" title="1.Column Block for Parallel Learning"></a>1.Column Block for Parallel Learning</h3><p> 按列将数据分块，分成不同的子集，可以在不同的机器上进行排序、分位点的计算。另外，按列分块后，特征之间是独立的，也可以并行计算候选点。</p>
+<h3 id="2-Cache-aware-Access"><a href="#2-Cache-aware-Access" class="headerlink" title="2.Cache-aware Access"></a>2.Cache-aware Access</h3><p>这部分没有细看，主要是增加CPU的缓存命中率，让block结构更容易在cache中命中，从而加快计算速度。</p>
+<h3 id="3-Blocks-for-Out-of-core-Computation"><a href="#3-Blocks-for-Out-of-core-Computation" class="headerlink" title="3.Blocks for Out-of-core Computation"></a>3.Blocks for Out-of-core Computation</h3><p>因为有大部分的块都是保存在磁盘上的，因此也要对这些block的存取进行优化，主要使用了压缩和缓冲区技术。</p>
+<h2 id="附录-二阶导数推导"><a href="#附录-二阶导数推导" class="headerlink" title="附录(二阶导数推导)"></a><a id="jump">附录(二阶导数推导)</a></h2><p>XGBoost的交叉熵损失函数:</p>
 <script type="math/tex; mode=display">
 \begin{aligned}
-value&:&1&,&4&,&8&,&10&,&15&,&16&,&20&,&20&,&21&,&25& \\
-rank&:&1&,&2&,&3&,&4&,&5&,&6&,&7&,&8&,&9&,&10&\\
-weight:&:&0.1&,&0.1&,&0.1&,&0.1&,&0.4&,&0.1&,&0.1&,&0.1&,&0.1&,&0.4&
-\end{aligned}</script><p>这样的话，0.25分位点就是$rank=4$，0.5分位点是$rank=5$。<br>可以看见，权重会对分位点的位置产生很大的影响，我们用什么作为样本的权重比较合适呢？</p>
+l(y_i,f_t(x_i))&=-[y_i\log{\sigma( f_t(x_i))}+(1-y_i)\log(1-\sigma(f_t(x_i)))]\\
+\sigma(f_t(x_i))&=\frac{1}{1+e^{-f_t(x_i)}}
+\end{aligned}</script><p>简写为:</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+l(y_i,f_t)&=-[y_i\log{\sigma( f_t)}+(1-y_i)\log(1-\sigma(f_t))]\\
+\sigma(f_t)&=\frac{1}{1+e^{-f_t}}
+\end{aligned}</script><p>因为有求导公式：</p>
+<script type="math/tex; mode=display">
+\sigma(x)'=\sigma(x)(1-\sigma(x))</script><p>那么一阶导数为：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+\frac{\partial l}{\partial f_t}&=\frac{\partial l}{\partial \sigma}*\frac{\partial \sigma}{\partial f_t}    \\
+&=-(\frac{y_i}{\sigma(f_t)}-\frac{1-y_i}{1-\sigma(f_t)})*[\sigma(f_t)(1-\sigma(f_t))]\\
+&=-(y_i(1-\sigma)-(1-y_i)\sigma)\\
+&=-(y_i-\sigma)\\
+&=\sigma -y_i
 
+\end{aligned}</script><p>然后求二阶导数直接套用公式可得：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+h_i=\frac{\partial^2 l}{\partial f_t^2}&=\frac{\partial (\sigma-y_i)}{\partial f_t}    \\
+&=\sigma(f_t)(1-\sigma(f_t))
+\end{aligned}</script>
     </div>
 
     
@@ -400,7 +548,7 @@ weight:&:&0.1&,&0.1&,&0.1&,&0.1&,&0.4&,&0.1&,&0.1&,&0.1&,&0.1&,&0.4&
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CART的分裂点选取"><span class="nav-number">1.</span> <span class="nav-text">CART的分裂点选取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XGB的分裂点选取"><span class="nav-number">2.</span> <span class="nav-text">XGB的分裂点选取</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CART的分裂点选取"><span class="nav-number">1.</span> <span class="nav-text">CART的分裂点选取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XGB的分裂点选取"><span class="nav-number">2.</span> <span class="nav-text">XGB的分裂点选取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺失值处理"><span class="nav-number">3.</span> <span class="nav-text">缺失值处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#并行化"><span class="nav-number">4.</span> <span class="nav-text">并行化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Column-Block-for-Parallel-Learning"><span class="nav-number">4.1.</span> <span class="nav-text">1.Column Block for Parallel Learning</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Cache-aware-Access"><span class="nav-number">4.2.</span> <span class="nav-text">2.Cache-aware Access</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Blocks-for-Out-of-core-Computation"><span class="nav-number">4.3.</span> <span class="nav-text">3.Blocks for Out-of-core Computation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#附录-二阶导数推导"><span class="nav-number">5.</span> <span class="nav-text">附录(二阶导数推导)</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -434,6 +582,17 @@ weight:&:&0.1&,&0.1&,&0.1&,&0.1&,&0.4&,&0.1&,&0.1&,&0.1&,&0.1&,&0.4&
 </div>
 
 
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友情链接
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://mintyale.com/" title="https:&#x2F;&#x2F;mintyale.com&#x2F;" rel="noopener" target="_blank">大敏鸽</a>
+        </li>
+    </ul>
+  </div>
 
       </div>
 
