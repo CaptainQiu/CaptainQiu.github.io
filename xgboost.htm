@@ -54,7 +54,7 @@
 <meta property="og:description" content="AdaBoost、提升树和GBDT的联系和区别有哪些？特别是提升树和梯度提升树的核心区别在什么地方？">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-06-08T11:41:05.000Z">
-<meta property="article:modified_time" content="2020-06-21T16:51:56.834Z">
+<meta property="article:modified_time" content="2020-06-23T02:23:08.371Z">
 <meta property="article:author" content="Captain Qiu">
 <meta property="article:tag" content="machine learning">
 <meta property="article:tag" content="gbdt">
@@ -227,7 +227,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-22 00:51:56" itemprop="dateModified" datetime="2020-06-22T00:51:56+08:00">2020-06-22</time>
+                <time title="Modified: 2020-06-23 10:23:08" itemprop="dateModified" datetime="2020-06-23T10:23:08+08:00">2020-06-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -314,16 +314,25 @@ L(y,f(x))=(y-f(x))^2</script><p>然后带入到提升树的损失函数中：</p
 r=y-f_{m-1}(x)</script><p>也就是说，要最小化L，就要让待求的树模型$T(x;\Theta_m)$去拟合值r，而r实际上是当前给定总模型$f_{m-1}(x)$的残差，因此每一轮要求的单个树模型实际上是在拟合上一轮总模型的残差，残差当然是越拟合越小的，这时候就可以结合上面的例子理解整个提升树的思想了。</p>
 <h2 id="GBDT"><a href="#GBDT" class="headerlink" title="GBDT"></a>GBDT</h2><p>对于提升树来说，它已经做得足够好了，但是让人觉得有瑕疵的地方是，只有损失函数是平方损失函数才能写成上面那种形式（虽然很多时候我们确实只用平方损失函数），如果能改进的更加通用一些，那么模型的适用性会更广泛。</p>
 <p>Freidman针对这个问题提出了GBDT算法。提升树中，其实我们每一轮是拟合上一轮总模型的残差，从直观上来看，损失函数每一步都越来越低，这种迭代方式特别像梯度下降法。而梯度下降法与拟合残差不一样的是，梯度下降每一步都是沿着损失函数下降最快的方向进行的，只是一个速度快慢的问题。</p>
-<p>我们把总模型$f_{m-1}(x)$整体看做是自变量，把$T(x;\Theta_m)$看做是自变量迭代的增量，并且可以带上学习速率：$\alpha\Delta f_{m-1}(x)$。那么迭代式可以写成：</p>
+<p>我们把总模型$f_{m-1}(x)$整体看做是自变量，把$T(x;\Theta_m)$看做是自变量迭代的增量，将损失函数在$f_{m-1}$处用泰勒一阶展开:</p>
 <script type="math/tex; mode=display">
-f_{m}(x)=f_{m-1}(x)+（-\alpha \Delta f_{m-1}(x)）</script><p>这是标准的梯度下降法，那么总模型可以看成是从$f_0$开始的梯度下降迭代过程：</p>
+\begin{aligned}
+L(f_m)&=L(f_{m-1}+T_m)    \\
+&\simeq L(f_{m-1})+L'(f_{m-1})T_m
+\end{aligned}</script><p>要使得$L(f_m)&lt;L(f_{m-1})$，可以令$\ \ T_m=-\alpha L’(f_{m-1})$</p>
+<p>那么迭代式可以写成：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+f_{m}&=f_{m-1}+T_m\\
+&=f_{m-1}+（-\alpha L'(f_{m-1})）    
+\end{aligned}</script><p>这是标准的梯度下降法，那么总模型可以看成是从$f_0$开始的梯度下降迭代过程：</p>
 <script type="math/tex; mode=display">
 \begin{aligned}
 \\f_M(x)&=\sum_{m=1}^M T(x;\Theta_m)
-\\&=f_0+（-\alpha\Delta f_0）+（-\alpha\Delta f_1）+...+（-\alpha\Delta f_{m-1}）
-\end{aligned}</script><p>因此我们每一步计算得到当前的$\Delta f_{m-1}$，然后用当前待求的树模型$T(x;\Theta_m)$去拟合这个梯度的负数即可。</p>
+\\&=f_0+（-\alpha L'(f_0)）+（-\alpha  L'(f_1)）+...+（-\alpha  L'(f_{m-1})）
+\end{aligned}</script><p>因此我们每一步计算得到当前的$L’(f_{m-1})$，然后用当前待求的树模型$T(x;\Theta_m)$去拟合这个梯度的负数即可。</p>
 <script type="math/tex; mode=display">
-\Delta f_{m-1}(x_i)=[\frac{\partial L(y_i,f_{m-1}(x_i))}{\partial f_{m-1}(x_i)}]</script><p>当损失函数L为平方损失函数的时候，这个梯度恰好为残差$y_i-f_{m-1}(x_i)$。因此提升树是GBDT的一种特殊情况，这样一来，GBDT的适用范围就放的很大了，理论上可以解决所有具有一阶可微损失函数的有监督学习问题。</p>
+ L'(f_{m-1}(x_i))=[\frac{\partial L(y_i,f_{m-1}(x_i))}{\partial f_{m-1}(x_i)}]</script><p>当损失函数L为平方损失函数的时候，这个梯度恰好为残差$y_i-f_{m-1}(x_i)$。因此提升树是GBDT的一种特殊情况，这样一来，GBDT的适用范围就放的很大了，理论上可以解决所有具有一阶可导损失函数的有监督学习问题。</p>
 <h2 id="切分点、候选点、分箱"><a href="#切分点、候选点、分箱" class="headerlink" title="切分点、候选点、分箱"></a>切分点、候选点、分箱</h2><p>解决完算法核心思想问题，然后就要解决具体的操作问题了，如何去拟合每一个$T(x;\Theta_m)$。因为提升树和GBDT用的都CART树，因此每一轮拟合都可以看做是生成一棵CART树的过程。</p>
 <p>李航老师在《统计学习方法》中给出的方法是，以每个$x_i$作为切分点，切分后该区域的最优值为该区域$y_i$的平均值，然后遍历计算切分后的平方差，选取平方差最低的作为本次的切分点。</p>
 <blockquote>

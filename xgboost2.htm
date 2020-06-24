@@ -54,7 +54,7 @@
 <meta property="og:description" content="xgboost的核心思想是什么？它每轮迭代拟合的是什么？它为什么要做这些改进？">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-06-10T06:28:05.000Z">
-<meta property="article:modified_time" content="2020-06-16T09:12:00.648Z">
+<meta property="article:modified_time" content="2020-06-23T05:56:19.251Z">
 <meta property="article:author" content="Captain Qiu">
 <meta property="article:tag" content="machine learning">
 <meta property="article:tag" content="gbdt">
@@ -227,7 +227,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-16 17:12:00" itemprop="dateModified" datetime="2020-06-16T17:12:00+08:00">2020-06-16</time>
+                <time title="Modified: 2020-06-23 13:56:19" itemprop="dateModified" datetime="2020-06-23T13:56:19+08:00">2020-06-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -293,9 +293,7 @@ l(y_i, \hat{y}_i)&=-[y_i\log{\sigma( \hat{y}_i)}+(1-y_i)\log(1-\sigma(\hat{y}_i)
 <blockquote>
 <p>论文中并没有阐述为什么要用二阶泰勒展开，个人理解从GBDT过渡过来比较符合逻辑。</p>
 </blockquote>
-<p>GBDT拟合的是损失函数的负梯度：</p>
-<script type="math/tex; mode=display">
-r_{k}(x_i)=-[\frac{\partial L(y_i,f_{k-1}(x_i))}{\partial f_{k-1}(x_i)}]</script><p>我们来看XGBoost的二阶泰勒展开。</p>
+<p>我们来看XGBoost的二阶泰勒展开。</p>
 <p>XGBoost的损失函数中添加了正则项$\Omega(f_t)$：</p>
 <script type="math/tex; mode=display">
 \mathcal{L}^{(t)}=\sum^n_{i=1}l(y_i,\hat{y}_i^{(t-1)}+f_t(x_i))+\Omega(f_t)</script><p>将损失函数$\mathcal{L}$中的$f_t(x_i)$视为$\Delta x$，进行二阶泰勒展开：</p>
@@ -303,9 +301,9 @@ r_{k}(x_i)=-[\frac{\partial L(y_i,f_{k-1}(x_i))}{\partial f_{k-1}(x_i)}]</script
 \mathcal{L}^{(t)}\simeq\sum_{i=1}^{n}[l(y_i,\hat{y}_i^{(t-1)})+g_if_t(x_i)+\frac{1}{2}h_if^2_t(x_i)]+\Omega(f_t)</script><p>其中$g_i=\partial_{\hat{y}^{(t-1)}}l(y_i,\hat{y}^{(t-1)}))$是一阶导数，$h_i=\partial^2_{\hat{y}^{(t-1)}}l(y_i,\hat{y}^{(t-1)}))$是二阶导数。</p>
 <p>因为$l(y_i,\hat{y}_{i}^{(t-1)}))$是上一次迭代的损失，在本次迭代中视为常数，最小化本次损失函数时可以去掉。</p>
 <p>当基学习器为CART的时候，我们可以把基函数写成$f(x)=w_{q(x)}(q:\mathbb{R}^m \rightarrow T,w \in \mathbb{R}^T)$,其中T是树的叶子节点数量，$w_{q(x)}$表示将x映射到第q(x)个叶子节点上，并且该叶子节点权重是w。</p>
-<p>因此可以定义上方的正则项为:</p>
+<p>对于正则项，可以定义为:</p>
 <script type="math/tex; mode=display">
-\Omega(f)=\gamma T+\frac{1}{2}\lambda ||w||^2</script><p>此正则项要限制每棵树的叶子节点数量和权重的大小。</p>
+\Omega(f_t)=\gamma T+\frac{1}{2}\lambda ||w||^2</script><p>此正则项要限制每棵树的叶子节点数量和权重的大小。</p>
 <p>结合上述公式对损失函数做进一步整理得到：</p>
 <script type="math/tex; mode=display">
 \tilde{\mathcal{L}}^{(t)}=\sum_{i=1}^n[g_if_t(x_i)+\frac{1}{2}h_if_t^2(x_i)]+\gamma T+\frac{1}{2} \lambda \sum^T_{j=1}w_j^2</script><blockquote>
