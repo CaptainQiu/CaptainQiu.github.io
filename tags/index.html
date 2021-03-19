@@ -216,10 +216,10 @@
       <div class="post-body">
           <div class="tag-cloud">
             <div class="tag-cloud-title">
-              6 tags in total
+              10 tags in total
             </div>
             <div class="tag-cloud-tags">
-              <a href="/tags/DQN/" style="font-size: 21px; color: #6f6f6f">DQN</a> <a href="/tags/Q-Learning/" style="font-size: 21px; color: #6f6f6f">Q-Learning</a> <a href="/tags/gbdt/" style="font-size: 12px; color: #ccc">gbdt</a> <a href="/tags/machine-learning/" style="font-size: 30px; color: #111">machine learning</a> <a href="/tags/reinforcement-learning/" style="font-size: 21px; color: #6f6f6f">reinforcement learning</a> <a href="/tags/xgboost/" style="font-size: 12px; color: #ccc">xgboost</a>
+              <a href="/tags/DQN/" style="font-size: 25.5px; color: #404040">DQN</a> <a href="/tags/Q-Learning/" style="font-size: 25.5px; color: #404040">Q-Learning</a> <a href="/tags/RKHS/" style="font-size: 12px; color: #ccc">RKHS</a> <a href="/tags/SVM/" style="font-size: 12px; color: #ccc">SVM</a> <a href="/tags/gbdt/" style="font-size: 21px; color: #6f6f6f">gbdt</a> <a href="/tags/gcn/" style="font-size: 16.5px; color: #9d9d9d">gcn</a> <a href="/tags/machine-learning/" style="font-size: 30px; color: #111">machine learning</a> <a href="/tags/matrix/" style="font-size: 12px; color: #ccc">matrix</a> <a href="/tags/reinforcement-learning/" style="font-size: 25.5px; color: #404040">reinforcement learning</a> <a href="/tags/xgboost/" style="font-size: 21px; color: #6f6f6f">xgboost</a>
             </div>
           </div>
         
@@ -298,20 +298,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -349,7 +349,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -433,6 +433,19 @@
 
 
 
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme: 'forest',
+      logLevel: 3,
+      flowchart: { curve: 'linear' },
+      gantt: { axisFormat: '%m/%d/%Y' },
+      sequence: { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
 
 
   

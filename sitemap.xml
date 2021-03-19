@@ -2,6 +2,41 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://qddmj.cn/rkhs.htm</loc>
+    
+    <lastmod>2021-03-10T11:56:21.089Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://qddmj.cn/gcn-laplacian2.htm</loc>
+    
+    <lastmod>2020-10-13T06:56:43.529Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://qddmj.cn/gcn-laplacian.htm</loc>
+    
+    <lastmod>2020-09-15T02:17:26.891Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://qddmj.cn/about/index.html</loc>
+    
+    <lastmod>2020-09-13T03:26:59.791Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://qddmj.cn/xgboost3.htm</loc>
+    
+    <lastmod>2020-09-04T07:35:43.186Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://qddmj.cn/xgboost2.htm</loc>
     
     <lastmod>2020-06-23T05:56:19.251Z</lastmod>
@@ -9,23 +44,9 @@
   </url>
   
   <url>
-    <loc>https://qddmj.cn/xgboost3.htm</loc>
-    
-    <lastmod>2020-06-23T03:00:09.235Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://qddmj.cn/xgboost.htm</loc>
     
     <lastmod>2020-06-23T02:23:08.371Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://qddmj.cn/about/index.html</loc>
-    
-    <lastmod>2020-06-10T08:11:23.822Z</lastmod>
     
   </url>
   
@@ -44,14 +65,14 @@
   </url>
   
   <url>
-    <loc>https://qddmj.cn/note/qdn_note.html</loc>
+    <loc>https://qddmj.cn/note/resume_bak.html</loc>
     
     <lastmod>2020-06-08T09:14:58.938Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://qddmj.cn/note/resume_bak.html</loc>
+    <loc>https://qddmj.cn/note/qdn_note.html</loc>
     
     <lastmod>2020-06-08T09:14:58.938Z</lastmod>
     
@@ -65,7 +86,7 @@
   </url>
   
   <url>
-    <loc>https://qddmj.cn/dqn2.htm</loc>
+    <loc>https://qddmj.cn/dqn4.htm</loc>
     
     <lastmod>2020-06-08T09:14:58.920Z</lastmod>
     
@@ -79,7 +100,7 @@
   </url>
   
   <url>
-    <loc>https://qddmj.cn/dqn4.htm</loc>
+    <loc>https://qddmj.cn/dqn2.htm</loc>
     
     <lastmod>2020-06-08T09:14:58.920Z</lastmod>
     

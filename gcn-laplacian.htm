@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://qddmj.cn').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="主要讨论图谱方法的前置知识，矩阵的特征向量和特征分解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图卷积神经网络(GCN)深入理解(1) 矩阵的谱分解">
+<meta property="og:url" content="https://qddmj.cn/gcn-laplacian.htm">
+<meta property="og:site_name" content="Our Home">
+<meta property="og:description" content="主要讨论图谱方法的前置知识，矩阵的特征向量和特征分解">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://qddmj.cn/images/gcn/gcn1/p0.png">
+<meta property="og:image" content="https://qddmj.cn/images/gcn/gcn1/p1.png">
+<meta property="og:image" content="https://qddmj.cn/images/gcn/gcn1/p2.png">
+<meta property="og:image" content="https://qddmj.cn/images/gcn/gcn1/p3.png">
+<meta property="og:image" content="https://qddmj.cn/images/gcn/gcn1/p4.png">
+<meta property="og:image" content="https://qddmj.cn/images/gcn/gcn1/p5.png">
+<meta property="og:image" content="https://qddmj.cn/images/gcn/gcn1/p6.png">
+<meta property="og:image" content="https://qddmj.cn/images/gcn/gcn1/p7.png">
+<meta property="article:published_time" content="2020-09-04T08:29:05.000Z">
+<meta property="article:modified_time" content="2020-09-15T02:17:26.891Z">
+<meta property="article:author" content="Captain Qiu">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="gcn">
+<meta property="article:tag" content="matrix">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qddmj.cn/images/gcn/gcn1/p0.png">
+
+<link rel="canonical" href="https://qddmj.cn/gcn-laplacian.htm">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>图卷积神经网络(GCN)深入理解(1) 矩阵的谱分解 | Our Home</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?417b0be270629c126f6db2d0dc5eb616";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Our Home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">learning room</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://qddmj.cn/gcn-laplacian.htm">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Captain Qiu">
+      <meta itemprop="description" content="For my wife">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Our Home">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图卷积神经网络(GCN)深入理解(1) 矩阵的谱分解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-04 16:29:05" itemprop="dateCreated datePublished" datetime="2020-09-04T16:29:05+08:00">2020-09-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-15 10:17:26" itemprop="dateModified" datetime="2020-09-15T10:17:26+08:00">2020-09-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/GCN/" itemprop="url" rel="index">
+                    <span itemprop="name">GCN</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/gcn-laplacian.htm" class="post-meta-item leancloud_visitors" data-flag-title="图卷积神经网络(GCN)深入理解(1) 矩阵的谱分解" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/gcn-laplacian.htm#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/gcn-laplacian.htm" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <div class="post-description">主要讨论图谱方法的前置知识，矩阵的特征向量和特征分解</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近在看GCN，大致了解了做GCN的两条路:</p>
+<ol>
+<li>基于spectral（谱）的方法</li>
+<li>基于spatial（空域）的方法</li>
+</ol>
+<p>其中基于空域的方法更容易理解，因为整个过程比较直观，符合我们正常的思维习惯。但是基于谱的方式就显得非常抽象，它抽象的地方不仅在于傅里叶变换，更在于对图的拉普拉斯算子进行分解这一步。就算你搞清楚了连续函数的傅里叶变换，也很难直接一步到位。</p>
+<p>查询了很多资料，我觉得正确的理解顺序应该是：</p>
+<ol>
+<li>了解卷积和傅里叶变换间的关系  </li>
+<li>了解矩阵和线性算子的特征分解（谱分解）</li>
+<li>了解连续拉普拉斯算子的谱分解与傅里叶变换的关系</li>
+<li>了解图拉普拉斯算子(拉普拉斯矩阵)与拉普拉斯-贝拉米算子、连续拉普拉斯算子间的关系</li>
+</ol>
+<p>理解顺序图如下所示：</p>
+<p><img src="/images/gcn/gcn1/p0.png" width="100%" height="100%"></p>
+<p>这系列博客目的仅仅在于理清思路，不会涉及详细推导，重要的结论会有相应的论文在附录给出。</p>
+<h1 id="核心难点"><a href="#核心难点" class="headerlink" title="核心难点"></a>核心难点</h1><p>总的来看，要理解基于拉普拉斯矩阵谱分解进行的图卷积方法，难点在于理解拉普拉斯算子和拉普拉斯矩阵的关系，以及拉普拉斯算子和傅里叶变换的关系。这里面涉及到的线性变换的一些基础理论比如谱定理、线性变换和矩阵的关系等等。如果可以将他们串联起来，对图卷积的理解一定会更上一层楼。</p>
+<h1 id="线性映射和矩阵"><a href="#线性映射和矩阵" class="headerlink" title="线性映射和矩阵"></a>线性映射和矩阵</h1><h2 id="矩阵和算子"><a href="#矩阵和算子" class="headerlink" title="矩阵和算子"></a>矩阵和算子</h2><p>算子(operator)可以理解为一种映射，它将一个线性空间X内的元素a映射为同一个空间内的另一个元素b。这里的重点是同一个空间中，这里同一个可以理解为均为函数空间，或者均为某n维空间。</p>
+<p>线性算子(Linear Operator)是一类特殊的算子，它满足以下两个条件:</p>
+<ol>
+<li>数乘: $T(k\alpha)=kT(\alpha)$</li>
+<li>加法: $T(\alpha+\beta)=T(\alpha)+T(\beta)$ </li>
+</ol>
+<p>很显然，一阶微分算子、积分算子都属于线性算子，他们作用的空间叫做函数空间。</p>
+<p>矩阵(Matrix)可以视为线性映射的一种表达方式。矩阵是将线性空间V中的元素a映射到另一个线性空间W中的元素b。</p>
+<ol>
+<li>数乘: $T(k\alpha)=kT(\alpha)$</li>
+<li>加法: $T(\alpha+\beta)=T(\alpha)+T(\beta)$ </li>
+</ol>
+<p>如果V与W的维度相同，那么他们属于同一个空间，矩阵此时为n*n的方阵，也称为算子。能用矩阵表达的算子，均作用在有限维空间上（比如二维、三维、n维欧几里得空间），而函数空间是无限维空间，所以微分算子、积分算子等无法用有限维矩阵来表示。</p>
+<h2 id="线性空间的基"><a href="#线性空间的基" class="headerlink" title="线性空间的基"></a>线性空间的基</h2><p>我们只讨论线性空间（向量空间），线性空间的线性同样也是满足几个基本条件:</p>
+<p>向量空间中的元素要满足：</p>
+<ol>
+<li>数乘: $k(\alpha+\beta)=k\alpha+k\beta$</li>
+<li>交换律：$\alpha+\beta=\beta+\alpha$</li>
+<li>结合律：$(\alpha+\beta)+\gamma=\alpha+(\beta+\gamma)$</li>
+<li>…</li>
+</ol>
+<p>如果有一个空间，不管里面的元素具体是指什么内容，只要他们满足上述的几个条件，这个空间就叫做线性空间，就可以用线性代数的一切方法进行抽象化的计算。</p>
+<p>建立起线性空间后，存在一类特殊的元素集合，用这类元素集合可以唯一表示该空间中所有其他元素，我们称其为空间的基，很显然，一个空间有无穷多组基，如果一组基他们互相正交并且长度为1，我们就称为规范正交基。</p>
+<p>现在我们抛开规范正交基，选取空间V的任意一组基$(v_1,v_2,v_3,…,v_n)$，那么空间V中任意一元素$\alpha$可被表示为:</p>
+<script type="math/tex; mode=display">
+\alpha=x_1v_1+x_2v_2+...+x_nv_n</script><p>我们定义一个线性映射T，它将基$(v_1,v_2,….,v_n)$映射为新的元素$(T(v_1),T(v_2)…,T(v_n))$，然后新的元素同样用基$(v_1,v_2,….,v_n)$表示：</p>
+<script type="math/tex; mode=display">
+T(v_1)=a_{1,1}v_1+a_{2,1}v_2+...+a_{n,1}v_n \\
+...\\
+T(v_k)=a_{1,k}v_1+a_{2,k}v_2+...+a_{n,k}v_n \\
+...\\
+T(v_n)=a_{1,n}v_1+a_{2,n}v_2+...+a_{n,n}v_n \\</script><p>那么，我们可以将映射后的元素$T(\alpha)$表示为</p>
+<script type="math/tex; mode=display">
+T(\alpha)  =x_1T(v_1)+...+x_kT(v_k)+...+x_nT(v_n)</script><p>展开合并后得到：</p>
+<script type="math/tex; mode=display">
+T(\alpha)=(x_1a_{1,1}+...+x_ka_{1,k}+...+x_na_{1,n})v_1\\
++...\\
++(x_ka_{k,1}+...+x_ka_{k,k}+...+x_na_{k,n})v_k\\
++...\\
++(x_na_{n,1}+...+x_na_{n,k}+...+x_na_{n,n})v_k</script><p>仔细考察整个过程，我们把基变换的表示写成”矩阵”,把$\alpha$写成”向量”：</p>
+<script type="math/tex; mode=display">
+\left[
+\begin{matrix}
+a_{1,1} & ... & a_{1,k} & ... &a_{1,n}\\
+&&...\\
+a_{k,1} & ... & a_{k,k} & ... &a_{k,n}\\
+&&...\\
+a_{n,1} & ... & a_{n,k} & ... &a_{n,n}\\
+\end{matrix}
+\right] *
+\left[
+\begin{matrix}
+x_1 \\..\\x_k \\...\\x_n\\
+\end{matrix}
+\right]
+\left(
+\begin{matrix}
+v_1 \\..\\v_k \\...\\v_n\\
+\end{matrix}
+\right)=
+\left[
+\begin{matrix}
+y_1 \\..\\y_k \\...\\y_n\\
+\end{matrix}
+\right]^{\top}
+\left(
+\begin{matrix}
+v_1 \\..\\v_k \\...\\v_n\\
+\end{matrix}
+\right)</script><p>是不是有内味了，我们可以说，矩阵M(T)其实是一种记录方式，它用这种方式记录了一组基的变换情况，元素$\alpha$其实是跟随着基的变化而变换的。因此矩阵M(T)记录着关于基变换的信息。</p>
+<p>下面用一个图展示下基变换的意义：<br><img src="/images/gcn/gcn1/p1.png" width="100%" height="100%"></p>
+<p>图片的纵横两个边表示原始的基，图片的右上角点跟随着基的变化而变化。</p>
+<blockquote>
+<p>关于矩阵的理解角度有很多种，这只是其中一种。</p>
+</blockquote>
+<p>要注意的是，线性变换T一旦确定，就是固定不变的，T是我们定义好的映射，它只与初始定义有关，而T的矩阵M(T)，其实与选择的基密切相关，矩阵完整的写法为$M(T,(v_1…v_n),(w_1…w_m))$，就是说，T的矩阵形式，与源空间V的基有关，也与目标空间W的基有关，只不过当V与W的维度相同的时候，我们将其视为一个空间，共用一个基进行表示，并且在不特殊说明的情况下，我们默认这个基是标准正交基，也可以省略。</p>
+<p>总结一下，线性映射T是固定的，它的矩阵形式M(T)与选择的基密切相关，选择不同的基，线性映射有不同的矩阵形式，只不过在绝大多数情况下，默认使用标准正交基，也就省略了说明，下一节关于特征向量和特征值我们有更直观的例子。</p>
+<h2 id="特征向量和特征值"><a href="#特征向量和特征值" class="headerlink" title="特征向量和特征值"></a>特征向量和特征值</h2><p>定义矩阵算子之后，我们可以考察在线性映射过程中一类特殊的元素。对于空间V，有一个线性映射T，它将元素$\alpha$映射到V的另一个元素$\beta$，但是有一类特殊的元素$(u_1,u_2,…,u_n)$，他们在这个线性变换前后，”方向”不变，只改变”大小”：</p>
+<script type="math/tex; mode=display">
+T(u_k)=\lambda_ku_k</script><p><img src="/images/gcn/gcn1/p2.png" width="40%" height="40%"><br>为什么叫做”特征”向量，或者”本征”向量，是因为这些特殊的向量完全反映了这个线性变换T的内在本质。</p>
+<blockquote>
+<p>特殊向量又叫不变子空间，例如由特征向量$u_1$构成的一维线性空间中的元素，全部都是不改变方向的，他们都是特征向量，并且这个子空间的元素都会被拉长$\lambda_k$倍。因此特征向量重要的是表示了一个不变的“方向”，特征值表示了对应方向的拉伸比例。</p>
+</blockquote>
+<p>这些不变的子空间并不是反映矩阵的本质，而是线性变换T的本质。上一节我们说到过，T在不同的基下面，会有不同的矩阵形式，假如我们用不变子空间、也就是特征向量作为基（如果特征值数量与维度相同且特征向量不共线），M(T)是什么样的？沿袭上一节的写法，我们取T的特征向量作为空间V的一组基$(u_1,u_2,…,u_n)$，那么空间中任意一元素$\alpha$可被表示为:</p>
+<script type="math/tex; mode=display">
+\alpha=b_1u_1+b_2u_2+...+b_nu_n</script><p>如图所示：<br><img src="/images/gcn/gcn1/p3.png" width="40%" height="40%"><br>对其进行线性变换：</p>
+<script type="math/tex; mode=display">
+T(\alpha)=b_1T(u_1)+b_2T(u_2)+...+b_nT(u_n)</script><p>如图所示：<br><img src="/images/gcn/gcn1/p4.png" width="50%" height="50%"><br>同样的，我们把基变换写出:</p>
+<script type="math/tex; mode=display">
+T(u_1)=\lambda_1u_1+0*u_2+...0*u_n\\
+...\\
+T(u_n)=0*u_1+0*u_2+...+\lambda_nu_n</script><p>那么，T关于基$(u_1,…,u_n)$的矩阵就是：</p>
+<script type="math/tex; mode=display">
+M(T,(u_1,...,u_n))=
+\left[
+\begin{matrix}
+\lambda_1 & ... & 0 & ... &0\\
+&&...\\
+0 & ... &\lambda_k & ... &0\\
+&&...\\
+0 & ... & 0 & ... &\lambda_n\\
+\end{matrix}
+\right]</script><p>有内味了，T关于不同的基有不同形式的矩阵，最特殊的，最简单的就是这一种对角矩阵。它表示，如果你是用T的特征向量作为基表示其他元素，经过线性变换T后，对应元素的每个维度相应的被拉伸了$\lambda_k$倍。这叫做矩阵对角化。</p>
+<h2 id="谱定理"><a href="#谱定理" class="headerlink" title="谱定理"></a>谱定理</h2><p>上一节谈到了矩阵对角化，我们用更形式化的符号推导,设P是由T的特征向量按列排列组成的矩阵：</p>
+<script type="math/tex; mode=display">
+P=[u_1,u_2,...,u_n]\\
+TP=[Tu_1,Tu_2,...,Tu_n]=[\lambda_1u_1,...,\lambda_nu_n]
+=P\Lambda</script><p>假如P可逆：</p>
+<script type="math/tex; mode=display">
+T=P\Lambda P^{-1}</script><p>$T=P\Lambda P^{-1}$ 实际反映了一个简单的事实，将线性变换T作用在元素$\alpha$上，可以分解为三步线性变换:</p>
+<ol>
+<li><p>$P^{-1}$算子将每一个特征向量变换到对应的标准正交基。原来的标准正交基变到某一个位置：<br><img src="/images/gcn/gcn1/p5.png" width="50%" height="50%"></p>
+</li>
+<li><p>经过上一步变换，特征向量已经变到标准正交基了，此时空间内所有向量的坐标都是用标准正交基的来表示，可以说，此时的坐标就是在特征向量作为基下的坐标。 然后将标准正交基拉伸$\Lambda$倍。</p>
+</li>
+</ol>
+<p><img src="/images/gcn/gcn1/p6.png" width="50%" height="50%"></p>
+<ol>
+<li>最后将标准正交基通过$P$再变回到特征向量的位置。<br><img src="/images/gcn/gcn1/p7.png" width="50%" height="50%"><br>元素$\alpha$在三步中随着基的变化而变化即可。</li>
+</ol>
+<p>更特殊的是，如果T的特征向量恰好是V的一组规范正交基(互相正交且模为1,注意区别标准正交基)，也就是P是酉矩阵（这种矩阵只旋转元素，不改变大小），那么这种T我们认为它是空间V上最好的算子，因为它的形式最简洁，性质最好研究。那么满足什么条件的线性映射才有这种好的性质呢？这就是谱定理研究的内容：</p>
+<p>当且仅当$T=T^{*}$，那么T的特征向量可以组成V的一组规范正交基。我们满足这个条件的算子T为V上的自伴算子。</p>
+<p>因为满足谱定理的矩阵必定可以对角化，因此我们可以称矩阵对角化为特征分解或谱分解。下一章详细讨论函数空间内拉普拉斯算子的谱分解。</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] <a href="https://link.springer.com/book/10.1007/978-3-319-11080-6" target="_blank" rel="noopener">Linear Algebra Done Right</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/gcn/" rel="tag"># gcn</a>
+              <a href="/tags/matrix/" rel="tag"># matrix</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/xgboost3.htm" rel="prev" title="xgboost理解(3) xgboost分裂点选取、缺失值处理和并行化">
+      <i class="fa fa-chevron-left"></i> xgboost理解(3) xgboost分裂点选取、缺失值处理和并行化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/gcn-laplacian2.htm" rel="next" title="图卷积神经网络(GCN)深入理解(2) 拉普拉斯算子(Laplacian)">
+      图卷积神经网络(GCN)深入理解(2) 拉普拉斯算子(Laplacian) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#核心难点"><span class="nav-number">2.</span> <span class="nav-text">核心难点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性映射和矩阵"><span class="nav-number">3.</span> <span class="nav-text">线性映射和矩阵</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#矩阵和算子"><span class="nav-number">3.1.</span> <span class="nav-text">矩阵和算子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线性空间的基"><span class="nav-number">3.2.</span> <span class="nav-text">线性空间的基</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特征向量和特征值"><span class="nav-number">3.3.</span> <span class="nav-text">特征向量和特征值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#谱定理"><span class="nav-number">3.4.</span> <span class="nav-text">谱定理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">4.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Captain Qiu</p>
+  <div class="site-description" itemprop="description">For my wife</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友情链接
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://mintyale.com/" title="https:&#x2F;&#x2F;mintyale.com&#x2F;" rel="noopener" target="_blank">大敏鸽</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">蜀ICP备20002327号-1 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Captain Qiu</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1278555605&web_id=1278555605"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme: 'forest',
+      logLevel: 3,
+      flowchart: { curve: 'linear' },
+      gantt: { axisFormat: '%m/%d/%Y' },
+      sequence: { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#valine-comments',
+      verify: false,
+      notify: false,
+      appId: 'PaC0k9h1K6lYPaeBm5sUJyuE-gzGzoHsz',
+      appKey: 'KSWkBrR5jaojJanxsmjtbpSS',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: true,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

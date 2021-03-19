@@ -46,25 +46,21 @@
   };
 </script>
 
-  <meta name="description" content="DQN中涉及到哪些误差？什么是投影误差？在这篇文章里一起聊聊Linear Value-Function Geometry吧">
+  <meta name="description" content="主要讨论拉连续普拉斯算子(Laplacian)的谱分解、特征函数和特征值与傅里叶变换之间的关系。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差">
-<meta property="og:url" content="https://qddmj.cn/dqn3.htm">
+<meta property="og:title" content="图卷积神经网络(GCN)深入理解(2) 拉普拉斯算子(Laplacian)">
+<meta property="og:url" content="https://qddmj.cn/gcn-laplacian2.htm">
 <meta property="og:site_name" content="Our Home">
-<meta property="og:description" content="DQN中涉及到哪些误差？什么是投影误差？在这篇文章里一起聊聊Linear Value-Function Geometry吧">
+<meta property="og:description" content="主要讨论拉连续普拉斯算子(Laplacian)的谱分解、特征函数和特征值与傅里叶变换之间的关系。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://qddmj.cn/images/dqn3/linear_value_function.png">
-<meta property="article:published_time" content="2020-02-03T14:19:05.000Z">
-<meta property="article:modified_time" content="2020-06-08T09:14:58.920Z">
+<meta property="article:published_time" content="2020-09-11T08:29:05.000Z">
+<meta property="article:modified_time" content="2020-10-13T06:56:43.529Z">
 <meta property="article:author" content="Captain Qiu">
-<meta property="article:tag" content="DQN">
-<meta property="article:tag" content="reinforcement learning">
 <meta property="article:tag" content="machine learning">
-<meta property="article:tag" content="Q-Learning">
+<meta property="article:tag" content="gcn">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://qddmj.cn/images/dqn3/linear_value_function.png">
 
-<link rel="canonical" href="https://qddmj.cn/dqn3.htm">
+<link rel="canonical" href="https://qddmj.cn/gcn-laplacian2.htm">
 
 
 <script id="page-configurations">
@@ -76,7 +72,7 @@
   };
 </script>
 
-  <title>Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差 | Our Home</title>
+  <title>图卷积神经网络(GCN)深入理解(2) 拉普拉斯算子(Laplacian) | Our Home</title>
   
 
 
@@ -200,7 +196,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
-    <link itemprop="mainEntityOfPage" href="https://qddmj.cn/dqn3.htm">
+    <link itemprop="mainEntityOfPage" href="https://qddmj.cn/gcn-laplacian2.htm">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -213,7 +209,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差
+          图卷积神经网络(GCN)深入理解(2) 拉普拉斯算子(Laplacian)
         </h1>
 
         <div class="post-meta">
@@ -223,14 +219,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-02-03 22:19:05" itemprop="dateCreated datePublished" datetime="2020-02-03T22:19:05+08:00">2020-02-03</time>
+              <time title="Created: 2020-09-11 16:29:05" itemprop="dateCreated datePublished" datetime="2020-09-11T16:29:05+08:00">2020-09-11</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-08 17:14:58" itemprop="dateModified" datetime="2020-06-08T17:14:58+08:00">2020-06-08</time>
+                <time title="Modified: 2020-10-13 14:56:43" itemprop="dateModified" datetime="2020-10-13T14:56:43+08:00">2020-10-13</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -238,14 +234,14 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Deep-Q-Learning/" itemprop="url" rel="index">
-                    <span itemprop="name">Deep Q-Learning</span>
+                  <a href="/categories/GCN/" itemprop="url" rel="index">
+                    <span itemprop="name">GCN</span>
                   </a>
                 </span>
             </span>
 
           
-            <span id="/dqn3.htm" class="post-meta-item leancloud_visitors" data-flag-title="Deep Q-Learning 系列论文漫谈(三) 错综复杂的误差(上)-投影误差" title="Views">
+            <span id="/gcn-laplacian2.htm" class="post-meta-item leancloud_visitors" data-flag-title="图卷积神经网络(GCN)深入理解(2) 拉普拉斯算子(Laplacian)" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -260,13 +256,13 @@
       </span>
       <span class="post-meta-item-text">Valine: </span>
     
-    <a title="valine" href="/dqn3.htm#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/dqn3.htm" itemprop="commentCount"></span>
+    <a title="valine" href="/gcn-laplacian2.htm#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/gcn-laplacian2.htm" itemprop="commentCount"></span>
     </a>
   </span>
   
   
-            <div class="post-description">DQN中涉及到哪些误差？什么是投影误差？在这篇文章里一起聊聊Linear Value-Function Geometry吧</div>
+            <div class="post-description">主要讨论拉连续普拉斯算子(Laplacian)的谱分解、特征函数和特征值与傅里叶变换之间的关系。</div>
 
         </div>
       </header>
@@ -277,86 +273,118 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="误差来源"><a href="#误差来源" class="headerlink" title="误差来源"></a>误差来源</h2><p>前一章我们比较概要的了解了作者所采取的两个措施：TargetNet和Experience Replay，并且从直观上解释了他们的作用，加上了一点我个人的理解。</p>
-<p>在逐渐了解这两项措施的过程中，我们很自然的引出了和函数近似相关的一个问题，就是<strong>deadly triad</strong>，恰好DQN同时满足了这三个条件，因此，DQN表现出的不稳定和误差，与这三个条件有什么关系呢？这个问题也许很难回答，我们可以更加具体一些，DQN的误差来源有哪些？作者做的措施是怎样削弱这些误差的？</p>
-<p>我个人将DQN的误差分为以下几类：</p>
-<ul>
-<li>函数近似误差:由Function Approx引起的投影误差。</li>
-<li>过拟合</li>
-<li>采样分布漂移</li>
-<li>采样误差</li>
-<li>Target moving</li>
-<li>最大化偏差(Maximization Bias)</li>
-</ul>
-<p>这是一个比较大的主题，将会分成上下两个章节，本章主要讨论和分析由函数近似引起的投影误差。</p>
-<h2 id="Linear-Value-Function-Geometry"><a href="#Linear-Value-Function-Geometry" class="headerlink" title="Linear Value Function Geometry"></a>Linear Value Function Geometry</h2><p>首先我们需要对Function Approximation带来的误差有个直观的了解，函数近似和自助法是“死亡三条件”中相对重要的两个，《RL book 2018》第11.4节，sutton用线性近似函数详细分析了函数近似带来的误差，我们可以跟随他的脚步简单建立一些概念。</p>
-<h3 id="投影算子-Projection-operator"><a href="#投影算子-Projection-operator" class="headerlink" title="投影算子(Projection operator)"></a>投影算子(Projection operator)</h3><p>乍一看很复杂，其实我们只需搞懂几个概念即可。为了简单起见，使用线性基函数做分析。我们假设状态空间${\cal S}=\{s_1,s_2,s_3\}$，也就是总共有三种状态。并且假设近似函数为线性基函数，参数为${\bf w}=(w_1,w_2)^{\top}$。</p>
-<p>在策略$\pi$固定的情况下，真实的Value Function记为 $v_{\pi}:{\cal S} \rightarrow {\Bbb R}$</p>
-<p>假设有2个特征基函数记为 $\phi_{0},\phi_{1}:{\cal S} \rightarrow {\Bbb R}$</p>
-<p>那么可以将函数近似Value Function $v_w$ 写出来 : $v_w(s)=\sum{w_i*\phi_i(s)}$</p>
-<p>然后在三维空间$\Bbb R^3$中用一个向量表示真实值函数: $v_\pi=[v_\pi(s_1),v_\pi(s_2),v_\pi(s_3)]$</p>
-<p>同样的，我们也可以用一个向量表示近似值函数: $v_w=[v_w(s_1),v_w(s_2),v_w(s_3)]$</p>
-<p>将这个三维空间记为$\cal V$，里面每一个点(向量)表示一个值函数。</p>
-<p>然后我们再定义一个二维空间 $\Phi$，在这个空间中，我们的近似值函数又可以被定义为：$v_w=[w_1,w_2]$，它是也是这个二维空间中的一个点。这说明 $\Phi$ 是 $\cal V$ 的一个子空间。也就是如上面那张图中所示一样。</p>
-<p>然后我们使用投影算子 $\Pi$ 将$\cal V$上的向量投影到子空间$\Phi$上:</p>
+        <p>上一章讨论了矩阵的特征向量和谱分解相关的内容，我们更有基础去理解拉普拉斯算子和傅里叶变换之间千丝万缕的关系。这一章的主要内容就是讨论拉普拉斯算子的特征函数和傅里叶变换间的龃龉。</p>
+<h1 id="卷积与傅里叶变换-Convolutions"><a href="#卷积与傅里叶变换-Convolutions" class="headerlink" title="卷积与傅里叶变换(Convolutions)"></a>卷积与傅里叶变换(Convolutions)</h1><blockquote>
+<p>首先了解下卷积与傅里叶变换间的关系，这部分可参考资料很多</p>
+</blockquote>
+<p>卷积是两个函数之间的运算，具体来说，是两个函数相乘后求积分。这种运算可以获取两个函数作用后的结果，如果我们固定其中一个函数作为卷积核，那么这种运算可以得到不同的函数和卷积核作用后的结果。数学定义如下：</p>
 <script type="math/tex; mode=display">
-\Pi v \stackrel{\text{def}}{=} v_w \ \  {\rm while} \ \  w=\arg\min_{w \in \Phi }||v-v_w||_{\mu}^2</script><p>这里的 $\mu_{\pi}$ 是在策略 $\pi$ 固定情况下，状态的概率密度函数。<br>定义距离：</p>
+(f\star h)(\mathbf{x})=\int _{\mathbb{R}^d} f(\mathbf{y})h(\mathbf{x-y})d\mathbf{y}</script><p>如果学过傅里叶变换，我们知道有一个重要的结论，两个函数卷积的傅里叶变换等于两个函数先各自做傅里叶变换然后相乘，也就是“时域做卷积等于频域做乘积”:</p>
 <script type="math/tex; mode=display">
-d(v_1,v_2)=||v_1-v_2||_{\mu}^2=\sum_i^n(v_1(s_i)-v_2(s_i))^2 \cdot \mu_{\pi}(s_i)</script><p>它其实就是一个加权的欧式距离。在定义了这个距离之后，我们就能用投影算子 $\Pi$ 将空间 $\cal V$ 中任意一点给投影到平面 $\Phi$ 上。</p>
-<p>投影算子也可以这样解释：在平面 $\Phi$ 上找到一个点 $\Pi v$，它与    $\cal V$ 中点 $v$ 的距离最近。</p>
-<h3 id="Bellman-算子-Bellman-operator"><a href="#Bellman-算子-Bellman-operator" class="headerlink" title="Bellman 算子(Bellman operator)"></a>Bellman 算子(Bellman operator)</h3><p>根据强化学习中关于值函数贝尔曼方程的定义:</p>
+(f\star h)(\mathbf{x})=\mathcal{F}^{-1}(\mathcal{F(f(\mathbf{x}))\circ F(h(\mathbf{x}))})</script><p>其中d维傅里叶变换定义为:</p>
+<script type="math/tex; mode=display">
+\mathcal{F}(f(\mathbf{x}))=\hat{f}(\xi)=\int_{\mathbb{R^d}} f(\mathbf{x})e^{-2\pi \mathbf{x}^{\top}\xi i}d\mathbf{x}</script><p>上面定义的是连续卷积和傅里叶变换，实际我们处理的信号都是离散的，需要针对性的进行改写(注意离散形式是经过严格数学证明的，当离散的数据趋近于无穷多的时候，两者具有某种程度的等价性，并不是所有算子都有离散形式的)。</p>
+<h1 id="拉普拉斯算子的谱分解"><a href="#拉普拉斯算子的谱分解" class="headerlink" title="拉普拉斯算子的谱分解"></a>拉普拉斯算子的谱分解</h1><p>上一章讲完了有限维度线性变换的谱分解，然后我们再来看无限维空间下的谱定理，虽然有很多结论是不能通用的，但是不妨碍我们去类比理解。我们将视角放到函数空间，并且列出一些线性算子:</p>
+<p>傅里叶变换：</p>
+<script type="math/tex; mode=display">
+\mathcal{F}(f(x))=\hat{f}(\xi)=\int_{\mathbb{R^d}} f(x)e^{-2\pi x\cdot\xi i}dx</script><p> 它满足线性映射的条件：</p>
+<script type="math/tex; mode=display">
+ \begin{aligned}
+
+
+\mathcal{F}(f+g)&=\mathcal{F}(f)+\mathcal{F}(g)\\
+\mathcal{F}(kf)&=k\mathcal{F}(f)\\
+ \end{aligned}</script><p>拉普拉斯算子：</p>
+<script type="math/tex; mode=display">
+\Delta f=\sum^d_{j=1}\frac{\partial^2f}{\partial x^2_j}</script><p>它也满足线性映射的条件：</p>
+<script type="math/tex; mode=display">
+ \begin{aligned}
+\Delta(f+g)&=\Delta(f)+\Delta(g)\\
+\Delta(kf)&=k\Delta(f)\\
+ \end{aligned}</script><p>下面我们将会展现拉普拉斯算子的一些独特的性质。首先有一个事实，拉普拉斯算子是自伴的。伴随算子A的定义为：对于空间V中的所有向量v和w,都有$(Av,w)=(v,A^* w)$，那么$A^*$称为A的伴随算子。类似于矩阵中的矩阵转置。自伴算子就是$A^*=A$，类似于矩阵中的对称矩阵。既然拉普拉斯算子是自伴算子，那么由谱定理可知，它一定可以被对角化，并且它的特征函数可以构成一个酉算子。</p>
+<p>拉普拉斯算子的特征函数是什么呢？其实可以通过多种直观的方法得到，因为拉普拉斯算子是二阶微分，微分算子大多在$e^x$这类指数函数上是保持不变的，我们设$f(x)=e^{2\pi i x\cdot \xi}$，那么:</p>
+<script type="math/tex; mode=display">
+\Delta f(x)=-4\pi^2|\xi|^2 f(x)</script><p>可以看见,$\Delta$的特征函数就是$f(x)$，特征值就是$-4\pi^2|\xi|^2$。当$\xi$为任意实数的时候，说明$\Delta$的特征值有无数个。好巧不巧的是，这个特征函数正好是傅里叶变换中的所谓”基函数”。我们马上会推导出一个有趣的结果：</p>
+<p>对与任意一个函数$f(x)$,将其用傅里叶逆变换表示为:</p>
 <script type="math/tex; mode=display">
 \begin{aligned}
+\Delta f(x)&=\Delta\int_{\mathbb{R^d}} \hat{f}(\xi)e^{2\pi i x\cdot\xi }d\xi\\
+&=\int_{\mathbb{R^d}} \hat{f}(\xi)\Delta e^{2\pi i x\cdot\xi }d\xi \\
+&=\int_{\mathbb{R^d}} -4\pi^2|\xi|^2 \hat{f}(\xi) e^{2\pi i x\cdot\xi }d\xi 
+\end{aligned}</script><p>同时，$\Delta f$整体作为一个函数，也可以用傅里叶逆变换表示为：</p>
+<script type="math/tex; mode=display">
 
-v_\pi(s) \  \dot{=}& \ {\Bbb E}[G_t|S_t=s] \\
- =&\ {\Bbb E}[R_{t+1}+\gamma G_{t+1}|S_t=s]
-
-\end{aligned}</script><p>我们可以直接写出Bellman算子$B_\pi$:</p>
+\Delta f(x)=\int_{\mathbb{R^d}} \widehat{\Delta f}(\xi)e^{2\pi i x\cdot\xi }d\xi\\</script><p>然后我们得到了下面的等式：</p>
 <script type="math/tex; mode=display">
-(B_\pi v)(s) \ \dot{=} \sum_a \pi(a|s) \sum_{s',r}{p(s',r|s,a)}[r+\gamma v(s')]</script><p>真实值函数 $v_\pi$ 是算子 $B_\pi$ 的唯一不动点(即 $B_\pi v_\pi=v_\pi$ 也就是值函数贝尔曼方程的定义)</p>
-<p>那么可以定义近似值函数的贝尔曼误差(Bellman error):</p>
+\widehat{\Delta f}(\xi)=-4\pi^2|\xi|^2 \hat{f}(\xi)</script><p>换个更好看的方式：</p>
 <script type="math/tex; mode=display">
-\overline{\delta}_w=B_\pi v_w-v_w</script><p>特别要注意的是，TD误差 $\delta_w$ 和 Bellman误差 $\overline{\delta}_w$ 之间的关系。</p>
-<p>TD误差为:</p>
+\mathcal{F}(\Delta f)(\xi)=-4\pi^2|\xi|^2 \mathcal{F}(f)(\xi)</script><p>再两边都加上傅里叶逆变换：</p>
 <script type="math/tex; mode=display">
-\delta_w(s,a,s')= r(s,a,s')+ \gamma v_w(s')-v_w(s)</script><p>Bellman误差为:</p>
+\Delta f(\xi)=\underbrace{ \mathcal{F^{-1}}(\underbrace{ -4\pi^2|\xi|^2 \underbrace{\mathcal{F}(f)}_{傅里叶变换}}_{乘特征值})}_{傅里叶逆变换}(\xi)</script><p>对比上一章我们的矩阵谱分解:</p>
 <script type="math/tex; mode=display">
-\overline{\delta}_w(s)= \Bbb E_{a\sim \pi ,s'\sim p(s'|s,a)}[\delta_w(s)]</script><p>可以看出，Bellman算子的作用就是将某个值函数$v$展开成时间差分的形式(TD)的期望，而且展开会存在Bellman误差，当且仅当$v=v_\pi$时，Bellman误差为0。</p>
-<blockquote>
-<p>注：上面$r$和$r(s,a,s’)$是回报在不同已知变量下的不同形式，包括$r(s,a)$它们都来自于MDP模型函数$p(r,s’|a,s)$。见《RLbook2018》P49。</p>
-</blockquote>
-<h3 id="投影误差"><a href="#投影误差" class="headerlink" title="投影误差"></a>投影误差</h3><p>Bellman算子给我们提供了一个思路，要想得到真实值函数，我们可以迭代地减小$v_w$的Bellman误差，直至为0。如果我们在表格型解决方案中使用这个思路，很正确，但是在函数近似问题中，却是行不通的。</p>
-<p>下面来解释为什么行不通。</p>
-<p>这张《RLbook2018》中的图可以解决我们这一章所有问题:</p>
-<p><img src="/images/dqn3/linear_value_function.png"></p>
-<p>&nbsp;</p>
-<p>换个角度看，Bellman算子将一个点$v_w$转换为另一个点$v_w’=B_\pi v_w$，然后它们的差$(B_\pi v_w-v_w)$就是Bellman error vector(BE)。</p>
-<p>图中我们初始近似值函数点$v_w$在$\Phi$平面上，第一次使用Bellman算子，产生的新的点$B_\pi v_w$“极有可能”离开$\Phi$平面，因为Bellman算子作用范围是整个值函数空间$\cal V$。</p>
-<p>当$B_\pi v_w$不在$\Phi$上时，我们就不可能让Bellman error vector（BE）=0，因为$v_w$是不可能离开$\Phi$平面的。只能退而求其次，找到$B_\pi v_w$离$\Phi$最近的点，也就是使用投影算子将其投影到$\Phi$上，得到新的点 $\Pi B_\pi v_w$。如图中所示，新的点是在$\Phi$上的，我们可以使用梯度下降法更新参数$(w_1,w_2)$让$v_w$移动到$\Pi B_\pi v_w$。这个过程实际上是在最小化投影Bellman误差(projected Bellman error)PBE。</p>
-<p>我们可以在图上看见，如果$v$可以离开$\Phi$平面，反复迭代使用Bellman算子，并每次都能使Bellman误差等于0，那么有理论可以保证最后一定收敛到不动点，即真实值函数$v_\pi$，也就是上面那一段连续的灰色箭头所指的路径。</p>
-<p>$v_w$不能离开$\Phi$平面时，我们每次最小化的误差是PBE，就是让$v_w$移动到$B_\pi v_w$的投影点上。下一次迭代从$\Pi B_\pi v_w$出发，继续使用Bellman算子，然后再投影到$\Phi$上。下面的灰色箭头就是近似值函数$v_w$的迭代路径。和之前一样我们可以进一步定义均方PBE,使用状态的分布函数进行加权:</p>
+T\alpha=\underbrace{P\underbrace{\Lambda \underbrace{P^{-1}\alpha}_{将特征向量变换到标准正交基}}_{每个特征向量乘上对应的特征值}}_{将标准正交基变回特征向量}</script><p>其实两个是可类比的，我们现在可以说，拉普拉斯算子的全体特征函数（傅里叶基函数）构成了函数空间的一个规范正交基()，它们的逆变换就是傅里叶变换。</p>
+<h1 id="离散傅里叶变换的矩阵"><a href="#离散傅里叶变换的矩阵" class="headerlink" title="离散傅里叶变换的矩阵"></a>离散傅里叶变换的矩阵</h1><p>上面我们讨论了连续拉普拉斯算子的谱分解，类比了矩阵的对角化。虽然很直观，但是连续拉普拉斯算子是作用在无限维的向量空间，矩阵是作用在有限维的向量空间，当我们实际进行工程计算的时候，只能处理有限维的空间，这里就涉及到算子的离散化，算子离散化的核心问题就是，当采样点趋近于无穷多的时候，离散算子能否收敛至连续算子。</p>
+<p>研究离散Fourier变换的另一个好处是，可以更加直观的感受所谓傅里叶基是如何组成傅里叶变换的。不会讨论的很复杂。</p>
+<p>连续的傅里叶变换为:</p>
 <script type="math/tex; mode=display">
-{\rm \overline{PBE}}( {\bf w})=||\Pi \overline{\delta}_w||^2_\mu</script><p>每次迭代都让PBE为0向量，也就是让均方PBE=0，最终$v_w$也会收敛到一不动点$\rm w_{TD}$。</p>
-<blockquote>
-<p>注：$\rm w_{TD}$是TD不动点，是最小化PBE得到的，并不是最小化TDE得到的。</p>
-</blockquote>
-<p>真实值函数$v_\pi$也可以投影到$\Phi$上，得到$\Phi$平面上离真实值函数最近的点$\Pi v_\pi$。他们之间的误差叫做Value Error(VE)，这是理论上$v_w$能到达的离$v_\pi$最近的点，注意，是理论上，最小化PBE得到的$\rm w_{TD}$很有可能与它不相等。</p>
+\mathcal{F}(f(x))=\hat{f}(\xi)=\int_{\mathbb{R^d}} f(x)e^{-2\pi x\cdot\xi i}dx</script><p>当时域x为离散取值时，例如取N个样本，并且间隔为T，定义为$f[0],f[1],…,f[k],…f[N-1]$。其余非样本点都取f(x)=0，那么连续傅里叶变换的积分就变成了求级数：</p>
 <script type="math/tex; mode=display">
-{\rm \overline{VE}}( {\bf w})=||\Pi v_\pi-v_\pi ||^2_\mu</script><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>好了，到此为止，我们已经初步了解了函数近似所带来的误差，和投影算子密切相关，我可以统称为投影误差。为了下一章中的投影误差分析，我们这里做了很多铺垫，下一章主要会结合论文讨论其他误差。</p>
-<p>最后强调两个概念:</p>
-<ol>
-<li><p><strong>我们DQN每次迭代最小化的是PBE，如果能够收敛，最后会收敛到定点$\rm w_{TD}$，这个点很有可能不是$\Phi$上的最优点$\Pi v_\pi$。</strong></p>
-</li>
-<li><p><strong>$\Pi v_\pi$是指的$v_\pi$离平面$\Phi$最近一点。它和$v_\pi$之间存在误差VE，而且VE很有可能不为0，除非$v_\pi$刚好在平面上。</strong></p>
-</li>
-</ol>
-<p>图上的其他内容大家可以自己详细阅读那一章节，这里就不赘述了。</p>
-<h2 id="可以参考的资料"><a href="#可以参考的资料" class="headerlink" title="可以参考的资料"></a>可以参考的资料</h2><p><a href="http://web.stanford.edu/class/cme241/lecture_slides/ValueFunctionGeometry.pdf" target="_blank" rel="noopener">[1] Stanford University:Value Function Geometry and Gradient TD</a></p>
-<p><a href="http://people.csail.mit.edu/agf/Files/13FTML-RLTutorial.pdf" target="_blank" rel="noopener">[2] A Tutorial on Linear Function Approximators for Dynamic Programming and Reinforcement Learning</a></p>
-<p>&nbsp;<br>&nbsp;<br>&nbsp;<br>&nbsp;</p>
-<blockquote>
-<p>由于没听老婆劝，执意回湖北后，恰好碰见新冠肺炎爆发，被封在省内。十几天没出门，人也发霉了。截止今日全国已经有一万七千多人被感染，疫情发展速度之快让我们都措手不及，一线的医务工作者和志愿者们你们辛苦了！相信一切都会好起来，我和老婆以前在武汉上大学，对这座城市感情很深，等到风平浪静，一定要再去樱花大道走一走。</p>
-</blockquote>
+\begin{aligned}
+\hat{f}(\xi)&=f[0]e^{-2\pi0\cdot\xi i}+f[1]e^{-2\pi T\cdot\xi i}+...+f[k]e^{-2\pi kT\cdot\xi i}+...+f[N-1]e^{-2\pi(N-1)T\cdot\xi i}\\  
+\end{aligned}</script><p>得到：</p>
+<script type="math/tex; mode=display">
+\hat{f}(\xi)=\sum^{N-1}_{k=0}f[k]e^{-2\pi kT\cdot\xi i}</script><p>设</p>
+<script type="math/tex; mode=display">
+\xi=0,\frac{1}{NT},\frac{1}{NT}\times2,...,\frac{1}{NT}\times (N-1)</script><p>最后得到傅里叶变换的离散形式：</p>
+<script type="math/tex; mode=display">
+\hat{f}[n]=\sum^{N-1}_{k=0}f[k]e^{-\frac{2\pi}{N}nk  i} \ \ \ \ \ \ (n=0:N-1)</script><p>我们把级数写成矩阵形式：</p>
+<script type="math/tex; mode=display">
+\left[
+\begin{matrix}
+\hat{f}[0]\\
+\hat{f}[1]\\
+\hat{f}[2]\\
+\vdots\\
+\hat{f}[N-1]\\
+\end{matrix}
+\right]=
+\left[
+\begin{matrix}
+1&1&1&1\cdots& 1\\
+1&W&W^2&W^3\cdots& W^{N-1}\\
+1&W^2&W^4&W^6\cdots& W^{N-2}\\
+1&W^3&W^6&W^9\cdots& W^{N-3}\\
+\vdots\\
+1&W^{N-1}&W^{N-2}&W^{N-3}\cdots& W\\
+\end{matrix}
+\right]
+\left[
+\begin{matrix}
+f[0]\\
+f[1]\\
+f[2]\\
+\vdots\\
+f[N-1]\\
+\end{matrix}
+\right]</script><p>其中$W=exp(-i2\pi /N)$。中间的大矩阵F就是离散傅里叶变换的矩阵形式。现在给出一些事实，当样本间的间隔T趋近于无穷小的时候，N趋近于无穷大，矩阵F变成无限维矩阵，并且离散傅里叶变换逐渐收敛于连续傅里叶变换，矩阵逐渐变成了函数空间的算子。</p>
+<p>结合上一节中说到的拉普拉斯算子的谱分解，由特征函数组成的傅里叶变换算子，可以看成是F逐渐逼近得到的。那么一维离散拉普拉斯算子就可以按照上面写成：</p>
+<script type="math/tex; mode=display">
+L=F^{-1} \Lambda F</script><p>其中F矩阵就是离散傅里叶变换矩阵，并且:</p>
+<script type="math/tex; mode=display">
+\Lambda=\left[
+\begin{matrix}
+0&0&0&0\cdots& 0\\
+0&-4\pi^2|\frac{1}{NT}|^2&0&0\cdots& 0\\
+0&0&-4\pi^2|\frac{2}{NT}|^2&0\cdots& 0\\
+0&0&0&-4\pi^2|\frac{3}{NT}|^2\cdots& 0\\
+\vdots\\
+0&0&0&0\cdots&-4\pi^2|\frac{N-1}{NT}|^2\\
+\end{matrix}
+\right]</script><p>同样的，当$N\rightarrow ∞$且$T\rightarrow0$的时候，一维离散拉普拉斯算子收敛至一维连续拉普拉斯算子。</p>
+<p>这章详细讨论了连续拉普拉斯算子和傅里叶变换之间的关系，在最后也简单推导了下离散傅里叶矩阵，下一章的核心内容就是理清Graph Laplacian和Laplacian之间的关系，既然拉普拉斯算子的特征函数可以构成傅里叶变换，那么图拉普拉斯算子凭什么也可以呢？</p>
+<h1 id="Graph-Laplacian"><a href="#Graph-Laplacian" class="headerlink" title="Graph Laplacian"></a>Graph Laplacian</h1><p>图拉普拉斯算子定义为 $L=D-A$，其中D为度矩阵，A为邻接矩阵。这样定义的核心想法是要在图上模拟连续的拉普拉斯算子，就是求某个节点周围邻居与其的二阶差分之和。如果图是一个规则的grid结构，也就是一个节点连接周围上下左右的四个节点，那么可以证明（需要读者自行寻找资料），当grid结构趋于无穷的时候，这种模拟二阶差分和的方式是收敛至连续拉普拉斯算子的。</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] <a href="https://www.math.ucla.edu/~tao/preprints/fourier.pdf" target="_blank" rel="noopener">Fourier Transform .TERENCE TAO</a></p>
+<p>[2] <a href="http://www.robots.ox.ac.uk/~sjrob/Teaching/SP/l7.pdf" target="_blank" rel="noopener">Lecture 7-The Discrete Fourier Transform</a></p>
 
     </div>
 
@@ -366,10 +394,8 @@ v_\pi(s) \  \dot{=}& \ {\Bbb E}[G_t|S_t=s] \\
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/DQN/" rel="tag"># DQN</a>
-              <a href="/tags/reinforcement-learning/" rel="tag"># reinforcement learning</a>
               <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
-              <a href="/tags/Q-Learning/" rel="tag"># Q-Learning</a>
+              <a href="/tags/gcn/" rel="tag"># gcn</a>
           </div>
 
         
@@ -378,12 +404,12 @@ v_\pi(s) \  \dot{=}& \ {\Bbb E}[G_t|S_t=s] \\
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/dqn2.htm" rel="prev" title="Deep Q-Learning 系列论文漫谈(二) 从Target Net和Experience replay聊起">
-      <i class="fa fa-chevron-left"></i> Deep Q-Learning 系列论文漫谈(二) 从Target Net和Experience replay聊起
+    <a href="/gcn-laplacian.htm" rel="prev" title="图卷积神经网络(GCN)深入理解(1) 矩阵的谱分解">
+      <i class="fa fa-chevron-left"></i> 图卷积神经网络(GCN)深入理解(1) 矩阵的谱分解
     </a></div>
       <div class="post-nav-item">
-    <a href="/dqn4.htm" rel="next" title="Deep Q-Learning 系列论文漫谈(四) 错综复杂的误差(下)-误差汇总">
-      Deep Q-Learning 系列论文漫谈(四) 错综复杂的误差(下)-误差汇总 <i class="fa fa-chevron-right"></i>
+    <a href="/rkhs.htm" rel="next" title="再生核希尔伯特空间(RKHS)漫谈(一)：定义">
+      再生核希尔伯特空间(RKHS)漫谈(一)：定义 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -445,7 +471,7 @@ v_\pi(s) \  \dot{=}& \ {\Bbb E}[G_t|S_t=s] \\
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#误差来源"><span class="nav-number">1.</span> <span class="nav-text">误差来源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linear-Value-Function-Geometry"><span class="nav-number">2.</span> <span class="nav-text">Linear Value Function Geometry</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#投影算子-Projection-operator"><span class="nav-number">2.1.</span> <span class="nav-text">投影算子(Projection operator)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bellman-算子-Bellman-operator"><span class="nav-number">2.2.</span> <span class="nav-text">Bellman 算子(Bellman operator)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#投影误差"><span class="nav-number">2.3.</span> <span class="nav-text">投影误差</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可以参考的资料"><span class="nav-number">4.</span> <span class="nav-text">可以参考的资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#卷积与傅里叶变换-Convolutions"><span class="nav-number">1.</span> <span class="nav-text">卷积与傅里叶变换(Convolutions)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#拉普拉斯算子的谱分解"><span class="nav-number">2.</span> <span class="nav-text">拉普拉斯算子的谱分解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#离散傅里叶变换的矩阵"><span class="nav-number">3.</span> <span class="nav-text">离散傅里叶变换的矩阵</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Graph-Laplacian"><span class="nav-number">4.</span> <span class="nav-text">Graph Laplacian</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">5.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

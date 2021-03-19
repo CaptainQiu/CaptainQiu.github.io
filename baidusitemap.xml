@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://qddmj.cn/xgboost2.htm</loc>
-    <lastmod>2020-06-23</lastmod>
+    <loc>https://qddmj.cn/rkhs.htm</loc>
+    <lastmod>2021-03-10</lastmod>
+  </url>  <url>
+    <loc>https://qddmj.cn/gcn-laplacian2.htm</loc>
+    <lastmod>2020-10-13</lastmod>
+  </url>  <url>
+    <loc>https://qddmj.cn/gcn-laplacian.htm</loc>
+    <lastmod>2020-09-15</lastmod>
   </url>  <url>
     <loc>https://qddmj.cn/xgboost3.htm</loc>
+    <lastmod>2020-09-04</lastmod>
+  </url>  <url>
+    <loc>https://qddmj.cn/xgboost2.htm</loc>
     <lastmod>2020-06-23</lastmod>
   </url>  <url>
     <loc>https://qddmj.cn/xgboost.htm</loc>
@@ -13,13 +22,13 @@
     <loc>https://qddmj.cn/note/dmj.html</loc>
     <lastmod>2020-06-08</lastmod>
   </url>  <url>
-    <loc>https://qddmj.cn/dqn2.htm</loc>
+    <loc>https://qddmj.cn/dqn4.htm</loc>
     <lastmod>2020-06-08</lastmod>
   </url>  <url>
     <loc>https://qddmj.cn/dqn3.htm</loc>
     <lastmod>2020-06-08</lastmod>
   </url>  <url>
-    <loc>https://qddmj.cn/dqn4.htm</loc>
+    <loc>https://qddmj.cn/dqn2.htm</loc>
     <lastmod>2020-06-08</lastmod>
   </url>  <url>
     <loc>https://qddmj.cn/dqn.htm</loc>

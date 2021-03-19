@@ -157,7 +157,7 @@ body {
 body {
   background: #f5f7f9;
   color: #555;
-  font-family: 'PingFang SC', "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'PingFang SC', "Lato", "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 1em;
   line-height: 2;
 }
@@ -173,7 +173,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'PingFang SC', "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'PingFang SC', "Lato", "PingFang SC", "Microsoft YaHei", sans-serif;
   font-weight: bold;
   line-height: 1.5;
   margin: 20px 0 15px;
@@ -373,7 +373,7 @@ pre {
 }
 pre,
 code {
-  font-family: consolas, Menlo, monospace, "PingFang SC", "Microsoft YaHei";
+  font-family: consolas, Menlo, monospace, "Lato", "PingFang SC", "Microsoft YaHei";
 }
 code {
   background: #eee;
@@ -973,7 +973,7 @@ pre .javascript .function {
 }
 .site-title {
   display: inline-block;
-  font-family: 'PingFang SC', "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'PingFang SC', "Lato", "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 1.375em;
   font-weight: normal;
   line-height: 1.5;
@@ -1154,7 +1154,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #86fca8;
+  background: #ffe7d1;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -1569,13 +1569,16 @@ pre .javascript .function {
   }
 }
 .post-body {
-  font-family: 'PingFang SC', "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'PingFang SC', "Lato", "PingFang SC", "Microsoft YaHei", sans-serif;
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
 @media (min-width: 1200px) {
   .post-body {
-    font-size: 1.125em;
+    color: #314659;
+    font-size: 1em;
+    font-weight: 300;
+    line-height: 1.6;
   }
 }
 .post-body span.exturl .fa {
@@ -1624,7 +1627,7 @@ pre .javascript .function {
   }
 }
 .posts-collapse .collection-title {
-  font-size: 1.125em;
+  font-size: 1em;
   position: relative;
 }
 .posts-collapse .collection-title::before {
@@ -1833,10 +1836,10 @@ pre .javascript .function {
   margin: 0;
 }
 .posts-expand .post-header {
-  font-size: 1.125em;
+  font-size: 1em;
 }
 .posts-expand .post-title {
-  font-weight: 300;
+  font-weight: 400;
   margin: initial;
   text-align: center;
   overflow-wrap: break-word;
@@ -1873,7 +1876,7 @@ pre .javascript .function {
 }
 .posts-expand .post-meta {
   color: #999;
-  font-family: 'PingFang SC', "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'PingFang SC', "Lato", "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 0.7em;
   margin: 3px 0 60px 0;
   text-align: center;
@@ -2102,7 +2105,7 @@ pre .javascript .function {
   color: #bbb;
   display: inline-block;
   font-size: 12px;
-  font-weight: 300;
+  font-weight: 400;
   padding-left: 12px;
 }
 .event-list .event .event-details {
@@ -2532,4 +2535,7 @@ ul.breadcrumb li + li:last-child {
 }
 .links-of-blogroll-item {
   padding: 0;
+}
+.mermaid {
+  text-align: center;
 }

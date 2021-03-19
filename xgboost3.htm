@@ -58,7 +58,7 @@
 <meta property="og:image" content="https://qddmj.cn/images/xgb3/second_ord.png">
 <meta property="og:image" content="https://qddmj.cn/images/xgb3/alg3.png">
 <meta property="article:published_time" content="2020-06-16T06:28:05.000Z">
-<meta property="article:modified_time" content="2020-06-23T03:00:09.235Z">
+<meta property="article:modified_time" content="2020-09-04T07:35:43.186Z">
 <meta property="article:author" content="Captain Qiu">
 <meta property="article:tag" content="machine learning">
 <meta property="article:tag" content="gbdt">
@@ -232,7 +232,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-23 11:00:09" itemprop="dateModified" datetime="2020-06-23T11:00:09+08:00">2020-06-23</time>
+                <time title="Modified: 2020-09-04 15:35:43" itemprop="dateModified" datetime="2020-09-04T15:35:43+08:00">2020-09-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -485,7 +485,10 @@ h_i=\frac{\partial^2 l}{\partial \hat {y}^{(t-1) \  2}}&=\frac{\partial (\sigma-
     <a href="/xgboost2.htm" rel="prev" title="xgboost理解(2) xgboost思想剖析">
       <i class="fa fa-chevron-left"></i> xgboost理解(2) xgboost思想剖析
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/gcn-laplacian.htm" rel="next" title="图卷积神经网络(GCN)深入理解(1) 矩阵的谱分解">
+      图卷积神经网络(GCN)深入理解(1) 矩阵的谱分解 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -560,20 +563,20 @@ h_i=\frac{\partial^2 l}{\partial \hat {y}^{(t-1) \  2}}&=\frac{\partial (\sigma-
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -611,7 +614,7 @@ h_i=\frac{\partial^2 l}{\partial \hat {y}^{(t-1) \  2}}&=\frac{\partial (\sigma-
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -695,6 +698,19 @@ h_i=\frac{\partial^2 l}{\partial \hat {y}^{(t-1) \  2}}&=\frac{\partial (\sigma-
 
 
 
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme: 'forest',
+      logLevel: 3,
+      flowchart: { curve: 'linear' },
+      gantt: { axisFormat: '%m/%d/%Y' },
+      sequence: { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
 
 
   

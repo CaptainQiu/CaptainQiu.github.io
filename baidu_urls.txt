@@ -1,3 +1,3 @@
-https://qddmj.cn/xgboost3.htm
-https://qddmj.cn/xgboost2.htm
-https://qddmj.cn/xgboost.htm
+https://qddmj.cn/rkhs.htm
+https://qddmj.cn/gcn-laplacian2.htm
+https://qddmj.cn/gcn-laplacian.htm
