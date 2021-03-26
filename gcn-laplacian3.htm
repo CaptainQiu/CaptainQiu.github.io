@@ -46,27 +46,21 @@
   };
 </script>
 
-  <meta name="description" content="一起探索DQN系列论文的秘密，抛砖引玉，没有复杂的公式，只有直观的解释。">
+  <meta name="description" content="简单介绍几篇论文，关于图拉普拉斯算子谱的收敛性，揭示连续Laplacian和Graph Laplacian间的关系">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Deep Q-Learning 系列论文漫谈(一) 从Q-Learning到DQN">
-<meta property="og:url" content="https://qddmj.cn/dqn.htm">
+<meta property="og:title" content="图卷积神经网络(GCN)深入理解(3) Convergence of Graph Laplacian">
+<meta property="og:url" content="https://qddmj.cn/gcn-laplacian3.htm">
 <meta property="og:site_name" content="Our Home">
-<meta property="og:description" content="一起探索DQN系列论文的秘密，抛砖引玉，没有复杂的公式，只有直观的解释。">
+<meta property="og:description" content="简单介绍几篇论文，关于图拉普拉斯算子谱的收敛性，揭示连续Laplacian和Graph Laplacian间的关系">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://qddmj.cn/images/dqn/dqn_atari.png">
-<meta property="og:image" content="https://qddmj.cn/images/dqn/dqn_dqn_childs.png">
-<meta property="og:image" content="https://qddmj.cn/images/dqn/dqn_alg.png">
-<meta property="article:published_time" content="2020-01-04T14:45:05.000Z">
-<meta property="article:modified_time" content="2020-06-08T09:14:58.919Z">
+<meta property="article:published_time" content="2021-03-25T08:29:05.000Z">
+<meta property="article:modified_time" content="2021-03-26T02:05:34.752Z">
 <meta property="article:author" content="Captain Qiu">
-<meta property="article:tag" content="DQN">
-<meta property="article:tag" content="reinforcement learning">
 <meta property="article:tag" content="machine learning">
-<meta property="article:tag" content="Q-Learning">
+<meta property="article:tag" content="gcn">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://qddmj.cn/images/dqn/dqn_atari.png">
 
-<link rel="canonical" href="https://qddmj.cn/dqn.htm">
+<link rel="canonical" href="https://qddmj.cn/gcn-laplacian3.htm">
 
 
 <script id="page-configurations">
@@ -78,7 +72,7 @@
   };
 </script>
 
-  <title>Deep Q-Learning 系列论文漫谈(一) 从Q-Learning到DQN | Our Home</title>
+  <title>图卷积神经网络(GCN)深入理解(3) Convergence of Graph Laplacian | Our Home</title>
   
 
 
@@ -202,7 +196,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
-    <link itemprop="mainEntityOfPage" href="https://qddmj.cn/dqn.htm">
+    <link itemprop="mainEntityOfPage" href="https://qddmj.cn/gcn-laplacian3.htm">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -215,7 +209,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Deep Q-Learning 系列论文漫谈(一) 从Q-Learning到DQN
+          图卷积神经网络(GCN)深入理解(3) Convergence of Graph Laplacian
         </h1>
 
         <div class="post-meta">
@@ -225,14 +219,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-01-04 22:45:05" itemprop="dateCreated datePublished" datetime="2020-01-04T22:45:05+08:00">2020-01-04</time>
+              <time title="Created: 2021-03-25 16:29:05" itemprop="dateCreated datePublished" datetime="2021-03-25T16:29:05+08:00">2021-03-25</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-08 17:14:58" itemprop="dateModified" datetime="2020-06-08T17:14:58+08:00">2020-06-08</time>
+                <time title="Modified: 2021-03-26 10:05:34" itemprop="dateModified" datetime="2021-03-26T10:05:34+08:00">2021-03-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -240,14 +234,14 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Deep-Q-Learning/" itemprop="url" rel="index">
-                    <span itemprop="name">Deep Q-Learning</span>
+                  <a href="/categories/GCN/" itemprop="url" rel="index">
+                    <span itemprop="name">GCN</span>
                   </a>
                 </span>
             </span>
 
           
-            <span id="/dqn.htm" class="post-meta-item leancloud_visitors" data-flag-title="Deep Q-Learning 系列论文漫谈(一) 从Q-Learning到DQN" title="Views">
+            <span id="/gcn-laplacian3.htm" class="post-meta-item leancloud_visitors" data-flag-title="图卷积神经网络(GCN)深入理解(3) Convergence of Graph Laplacian" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -262,13 +256,13 @@
       </span>
       <span class="post-meta-item-text">Valine: </span>
     
-    <a title="valine" href="/dqn.htm#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/dqn.htm" itemprop="commentCount"></span>
+    <a title="valine" href="/gcn-laplacian3.htm#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/gcn-laplacian3.htm" itemprop="commentCount"></span>
     </a>
   </span>
   
   
-            <div class="post-description">一起探索DQN系列论文的秘密，抛砖引玉，没有复杂的公式，只有直观的解释。</div>
+            <div class="post-description">简单介绍几篇论文，关于图拉普拉斯算子谱的收敛性，揭示连续Laplacian和Graph Laplacian间的关系</div>
 
         </div>
       </header>
@@ -279,69 +273,56 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="写在前面的话"><a href="#写在前面的话" class="headerlink" title="写在前面的话"></a>写在前面的话</h3><p>这系列博客我以google DeepMind 2013年在NIPS、2015年在Nature发表的 Deep Q-Learning为引子，和大家一起讨论Deep Q-Learning算法和后续改进的文章，本人才疏学浅，能力有限，错误不可避免，希望能和更多热爱Machine Learning的朋友一起交流！</p>
-<p>Reinforcement Learning 是 Machine Learnig大家族中很特别的一个成员，它与需要事先准备数据集的监督学习有本质的区别，它强调与环境交互产生的反馈，并且根据反馈自我调节，以获取最大的累积回报。</p>
-<p>强化学习在与神经网络结合之前，没有像现在这样收到过关注，虽然之前早有值函数近似方法 <strong>(Function Approximation)</strong>，而让学者们具有深刻印象的转折点就是2013年Google DeepMind的一个研究小组设计的用深层神经网络去逼近值函数的方法，他们在Atari游戏中，只通过视频图像输入和游戏分数反馈，就取得了人类水平的高分，这一过程并没有经过细致的、针对性的特征设计。此方法一举将强化学习提升到最前沿水平。</p>
-<center> <img src="/images/dqn/dqn_atari.png"> </center>
-<center>（Atari游戏,来自论文 Playing Atari with Deep Reinforcement Learning）</center>
+        <p>没想到时隔半年，我又把拉普拉斯算子这块难啃的骨头捡起来了，在之前我虽然搞清楚了在欧式空间上连续拉普拉斯算子和傅里叶变换间的关系，但是事情远没有那么简单。当我深入看这些论文之后，我放弃了完全弄动它们的想法，已经超出了我的数学能力范围，可能后面有大块空闲的时间，学习微分几何，黎曼流形之后，再来看这些内容。这章纯粹是个人理解，如果有不准确的地方请海涵。</p>
+<h1 id="Graph-Laplacian的来历"><a href="#Graph-Laplacian的来历" class="headerlink" title="Graph Laplacian的来历"></a>Graph Laplacian的来历</h1><p>首先，离散拉普拉斯算子不只有一种，根据问题的不同有很多种形式，最经典的是图拉普拉斯算子，因为我们大多数图都是非欧几里得空间中的数据，比如社交网络、商品和用户间的关系等等，图的存在是非常广泛的，但是在非欧空间中，形式简单的拉普拉斯算子不能用了，我们需要另寻他法。图拉普拉斯算子定义为 $L=D-A$，其中D为度矩阵，A为邻接矩阵，也有其他的定义比如$L=D-W$，W为权重矩阵，表示有权图。这些定义可以说是凭经验写的，也叫empirical approximation，就是根据之前的经验和线索猜的。</p>
+<p>是怎么猜出来的呢？具体的过程见论文[3] (这篇论文是最早讲谱聚类的，Belkin这位大佬在开发谱聚类后，之后一直在研究图拉普拉斯矩阵的收敛性问题)，这里简单写下我的理解。</p>
+<p>首先，需要了解Laplace-Beltrami算子，这个算子是欧式空间中的Laplacian在黎曼流形上的推广，既然推广了，他们的共同定义要一致，即梯度的散度：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
 
-<p>&nbsp;</p>
-<p>他们设计的方法就是 <strong>Deep Q-Learning(或者叫DQN，Deep Q-Network)</strong>，而后续领域内的大神们各显神通，在此基础上进行魔改强化，让Q-Learning这一经典算法重回大众的视野。Q-Learning的创造者可能也想不到，经过了二十多年，它的后辈们居然在短短四五年内凭借神经网络创造了如此庞大的算法家族：</p>
-<p>&nbsp;</p>
-<div style="align: center"> 
-<img src="/images/dqn/dqn_dqn_childs.png"> 
-</div>
+\Delta_M f &=\nabla_M\cdot\nabla_M f \\
+&=\mathrm{div}(\nabla_M f)
 
-<center>（DQN和后续算法关系图，来自论文 Deep Learning for Video Game Playing）</center>
+\end{aligned}</script><p>按照论文[1]中的说法，当流形$M$不确定的时候，Laplace-Beltrami算子是没有一个通用的解析式的（原文：, the closed form of the Laplace operator is unavailable for general manifolds）。至于为什么没有，这个坑我没有找到。然后论文[1]说，因此，需要给出一个有具体形式的中间算子$\mathcal{L}$，来近似Laplace-Beltrami算子：</p>
+<script type="math/tex; mode=display">
+\mathcal{L}_t^Mf(x)=\frac{1}{t(4\pi t)^{m/2}}\int_{y\in M} e^{-\frac{||x-y||^2}{t}}(f(x)-f(y))dy</script><p>这个公式出现的很突然，论文[1]表示，这是论文[3] Belkin先提出来的，然后论文[3]的Belkin说，这是文献[4]在1997年提出来的，等我找到了文献[4]，我已经彻底看不懂了。</p>
+<p>总之，论文[3]中说到，流形上的Laplace-Beltrami算子与热力学方程紧密相关（可能要去看数学物理方法的书），然后，利用热传导方程，可以构建出具有核函数的近似中间算子，这一步得去深入阅读文献[4]这本书。我想不通的地方在于，热传导方程和黎曼流形有啥关系，[4]这本书的Introduction我都看不懂，更别说深入去了解了。直观来说，这个近似是建立在一个假设之上：在流形上两个点之间的信息交流的速度和热传导相似。</p>
+<p>我们接受这个事实，这个中间算子就是用来近似Laplace-Beltrami算子的。然后，再做进一步离散化，将积分改为级数，设$K$为流形$M$的网格近似（满足一定条件的近似），$V=\{v_1,…,v_n\}$是网格上的顶点<br>，并且$f$是网格上的函数，可以表示为向量$\mathbf{f}=[f(v_1),…,f(v_n)]^T$，那么离散化后的近似算子可以写成矩阵形式：</p>
+<script type="math/tex; mode=display">
+L_{t,n}^K f(v_i)=\frac{1}{t(4\pi t)^{m/2}}\sum_{v_j\in V}\frac{1}{n}e^{-\frac{|v_i-v_j||^2}{4t}}(f(v_i)-f(v_j))</script><p>可以令图的权矩阵为:</p>
+<script type="math/tex; mode=display">
+W_{ij}=
+\begin{cases}
+e^{-\frac{|v_i-v_j||^2}{4t}}& \text{if   } ||v_i-v_j||<\epsilon\\\\
 
-<p>&nbsp;</p>
-<p>这么多内涵丰富的论文我也看不全，只能是走马观花。其中需要重点关注DQN的三个魔改论文:</p>
-<ul>
-<li><strong>Double DQN</strong></li>
-<li><strong>Dueling DQN</strong></li>
-<li><strong>Prioritized DQN</strong></li>
-</ul>
-<p>它们代表了DQN最重要的三个优化方式，我们后面将会一一介绍。</p>
-<h3 id="Q-Learning"><a href="#Q-Learning" class="headerlink" title="Q-Learning"></a>Q-Learning</h3><p>不那么正式的回顾一下Q-Learning，它在强化学习算法中的分类是:</p>
-<p><img src="/images/dqn/dqn_alg.png"></p>
-<p>可以看见Q-Learning是属于值函数近似算法中，蒙特卡洛方法和时间差分法相结合的算法。它在1989年被Watkins提出，可以说一出生就给强化学习带来了重要的突破。它的定义如下：</p>
+
+0& \text{otherwise}
+\end{cases}</script><p>这样$L=D-W$就出来了</p>
+<p>我们发现，这里的核心在于热传导方程和Laplace-Beltrami算子的关系，搞清楚文献[4]是怎么导出近似算子的，就搞清楚了$L=D-W$是怎么来的。</p>
+<h1 id="Graph-Laplacian谱的收敛性"><a href="#Graph-Laplacian谱的收敛性" class="headerlink" title="Graph Laplacian谱的收敛性"></a>Graph Laplacian谱的收敛性</h1><p>上面给出了图拉普拉斯算子的形式，一路近似过来的，显然我们需要大胆猜想，小心求证。你这样近似出来的拉普拉斯矩阵，靠不靠谱？如果我的点足够多，足够密，趋近于无穷大，这个拉普拉斯矩阵还能继续近似吗？</p>
+<p>文献[1],[2]还有很多都在研究这个问题，我只看了大致的思路。首先，需要明确的是，如果算子收敛，是不能得出算子的特征值和特征向量也收敛的。我们用Graph Laplacian主要是用它的特征值和特征向量，那么研究自然也是特征值的收敛和特征向量的收敛，这两个要求会更强一些。</p>
+<p>文献[2]应该是比较早研究收敛性的文章，后面很多文章都引用它，我们简单说下它的证明步骤。</p>
 <script type="math/tex; mode=display">
-Q(S_t,A_t)\leftarrow Q(S_t,A_t)+\alpha[\underbrace{R_{t+1}+\gamma\max_aQ(S_{t+1},a)}_{q*}-Q(S_t,A_t)]</script><p>这里动作价值Q函数的目标就是逼近最优的$q*$，并且轨迹的行动策略与最终的$q*$是无关的。后面中括号的加和式表示的是 <strong>$q*$的贝尔曼最优方程近似形式</strong>。</p>
-<h3 id="Deep-Q-Learning"><a href="#Deep-Q-Learning" class="headerlink" title="Deep Q-Learning"></a>Deep Q-Learning</h3><p>如果要在连续的状态空间中计算Q函数$Q^{\pi}(s,a)$，使用Q表是不现实的选择，因为连续的状态空间会让Q表的存储空间变得非常大。那么我们可以用一个关于s和a的连续函数$Q_\theta(s,a)$去近似$Q^{\pi}(s,a)$。$Q_\theta(s,a)$ 是一个参数为$\theta$的函数，事已至此，路就很自然走到了神经网络的大门口，近似这种事就是神经网络的老本行。</p>
-<p>不管$Q^{\pi}(s,a)$是怎样一个复杂的函数，只要使用Deep Network，就有机会去近似它，说不定还能近似的很好。</p>
-<p>如果动作空间A是离散的,共有$m$个动作，$a_1,…,a_m$，那么我们可以定义$Q_\theta$是状态$s$的函数，输出是$m$个向量：</p>
+\mathbf{Eig \ L}_{t,n}^K \xrightarrow{n\rightarrow \infty} \mathbf{Eig \ }\mathcal{L}_{t}^\mathcal{M} \xrightarrow{t\rightarrow 0} \mathbf{Eig \ }\Delta_\mathcal{M}</script><p>证明分为两个步骤：</p>
+<h2 id="part1"><a href="#part1" class="headerlink" title="part1"></a>part1</h2><p>证明当n趋于无穷大的时候，也就是在流形$\mathcal{M}$上，以uniform的分布采样无穷多的点，那么图拉普拉斯算子$\mathbf{ L}_{t,n}^K$的特征值与特征向量会收敛至流形上连续的近似算子$\mathcal{L}_{t}^\mathcal{M}$。也就是得到以下结论:</p>
 <script type="math/tex; mode=display">
-Q_\theta(s)=\begin{bmatrix}
-    Q_\theta(s,a_1)\\
-    \vdots\\
-    Q_\theta(s,a_m)\\
-\end{bmatrix}
-\approx
-\begin{bmatrix}
-     Q^\pi(s,a_1)\\ 
-     \vdots\\
-     Q^\pi(s,a_m)\\
-\end{bmatrix}</script><p>神经网络接受状态向量$s$为输入，然后输出的m个向量分别作为真实$Q^\pi$的每一维的近似。</p>
-<h3 id="Loss-Function"><a href="#Loss-Function" class="headerlink" title="Loss Function"></a>Loss Function</h3><p>已经确定要使用神经网络近似，我们拿什么作为损失函数来学习它的参数 $\theta$ 呢？既然我们的目标函数$Q^\pi$输出的是连续的数值，就先用平方损失函数写出来：</p>
-<script type="math/tex; mode=display">
-L_i(\theta_i)=E_{s,a\sim\rho(\cdot)}[(y_i-Q(s,a;\theta_i))^2]</script><p>$L_i(\theta_i)$表示的第$i$次迭代的损失函数。仔细对比Q-Learning的定义，损失函数中的样本真实目标值$y_i$可以写成：</p>
-<script type="math/tex; mode=display">
-y_i=E_{s'\sim E}[r+\gamma\max_{a'}Q(s',a';\theta_{i-1})|s,a]</script><p>这就是当前时刻状态$s$和动作$a$确定的情况下，执行动作$a$，环境$E$会进入下一个时刻的状态$s’$；然后在$s’$状态下，计算最优动作价值函数$q*$。</p>
-<p>以上是2013年论文中的损失函数，我觉得其中有点含混不清的地方是目标值$y_i$中的$\theta_{i-1}$的下标。结合论文的叙述，它的意思是在第$i$次迭代计算$L_i$时，计算目标值使用的$\theta_{i-1}$是上一次迭代更新后的。问题是为什么不用第$i$次的，我查看了Sutton的《Reinforcement Learning》关于TD误差的章节，当前Q值和目标Q值使用的参数都是当前时刻的，并且在论文后面的算法伪代码中也没有关于下标的叙述，于是这个$i-1$下标就成了悬案。</p>
-<p>到了2015年，发表在Nature的论文中，增加了Target Net 改进方法，结合经验回放，将损失函数重新写成：</p>
-<script type="math/tex; mode=display">
-L_i(\theta_i)=E_{(s,a,r,s')\sim U(D)}[(r+\gamma\max_{a'}Q(s',a';\theta_{i}^{-})-Q(s,a;\theta_i))^2]</script><p>其中$(s,a,r,s’)\sim U(D)$表示样本从buffer D中使用统一采样的方式得到。$\theta_i^-$表示Target Net的网络参数，每隔$C$次迭代，就更新为$\theta_i$，并且在两次更新之间它是固定的。这次损失函数的表述更加清晰了。</p>
-<h3 id="Target-Net-Experience-replay"><a href="#Target-Net-Experience-replay" class="headerlink" title="Target Net / Experience replay"></a>Target Net / Experience replay</h3><h4 id="Target-Net"><a href="#Target-Net" class="headerlink" title="Target Net"></a>Target Net</h4><p>2015年的论文中新增了Target Net这一个改进点，目的是为了增加网络训练的稳定性，这个改进点虽然简单，但是要能讲清楚却不容易，涉及到强化学习目前的核心领域：<strong>Function Approximation</strong>。这个领域目前理论还不完善，有很多开放性问题没有解决，一两句话解释不清楚，但是我们可以通过这个点扩散开，来深入探索Function Approximation中有哪些重要的问题，而且当前的研究进展是怎样的，也是很有意义的。<a href="https://qddmj.cn/2020/01/17/dqn2/">下一章</a>我会尝试讲讲我的理解，望各位朋友指正。</p>
-<h4 id="Experience-replay"><a href="#Experience-replay" class="headerlink" title="Experience replay"></a>Experience replay</h4><p>放这个优化点的理由稍微复杂点，作者在论文中写了三个:</p>
+\lim_{n\rightarrow \infty} \lambda^t_{n,i}=\lambda^t_i \\
+\\ \ 
+\\
+\lim_{n\rightarrow \infty}||e^t_{n,i}(x)-e^t_i(x)||=0</script><p>其中$\lambda$表示特征值，$e(x)$表示特征函数。</p>
+<h2 id="part2"><a href="#part2" class="headerlink" title="part2"></a>part2</h2><p>证明当t趋于无穷小的时候，近似拉普拉斯算子的特征值和特征向量收敛于流形$\mathcal{M}$上的Laplace-Beltrami算子。这里的t是热传导方程中的时间参数，是指在当前，经过t时间后，某个地方的温度大小。当t趋于无穷小，也就是下一刻无限趋近这一刻的时候，很抽象，论文[1][2][3]都没有给出直观解释。这样看似简单的两步，涉及到其他很多文献。</p>
+<p>另外，我们注意到一些前置条件，比如从流形上采样的点，必须是均匀概率分布。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>至此，我们终于磕磕绊绊，了解了图拉普拉斯算子的来龙去脉，但是远没有到完全清楚的地步。这是个时间跨度很长的学习，关于Laplacian的零零散散至少还有两个点没有搞清楚，需要后面继续努力：</p>
 <ol>
-<li>让“有用”的样本得到更多的训练次数，提高样本的使用效率。</li>
-<li>打破连续采样的样本之间的“correlations”，可以减少训练时的方差。</li>
-<li>由于on-policy的学习模式使然(严格来说DQN是 off-policy，但是也是使用自己产生的样本，大致上是一样的)，模型的参数会决定下一时刻的样本分布，这样会让模型陷入比较糟糕的局部最优，使用Experience replay可以减轻这种效应。</li>
+<li>为什么黎曼流形上的Laplace-Beltrami算子没有通用的解析式。</li>
+<li>热力学方程和Laplace-Beltrami算子的关系。</li>
+<li>近似Laplace-Beltrami算子的导出理由是什么。</li>
 </ol>
-<p>相信上面三个理由是不能满足有些朋友的好奇心的，第一条尚可理解，第二条的“correlations”到底是指的什么关系？为什么有关联关系就会引起训练方差大呢？第三条更含糊了，样本分布不同为什么容易陷入局部最优？虽然有简单的例子说明，但是我觉得还不够，还需要深入一些，至少能够说服自己吧。同样的，<a href="https://qddmj.cn/2020/01/17/dqn2/">下一章</a>和Target Net一起说一点我自己的理解。</p>
-<p><a href="https://qddmj.cn/dqn2.htm/">第二章 Deep Q-Learning 系列论文漫谈(二) 从Target Net和Experience replay聊起</a></p>
-<h3 id="可以参考的文献："><a href="#可以参考的文献：" class="headerlink" title="可以参考的文献："></a>可以参考的文献：</h3><p>DQN原始论文 <a href="https://arxiv.org/abs/1312.5602" target="_blank" rel="noopener">Mnih, Volodymyr, et al. “Playing atari with deep reinforcement learning.” NIPS2013</a></p>
-<p>DQN改进版 <a href="http://files.davidqiu.com//research/nature14236.pdf" target="_blank" rel="noopener">Mnih, Volodymyr, et al. “Human-level control through deep reinforcement learning.” Nature2015</a></p>
+<p>我觉得首先得了解微分几何和黎曼流形的基本概念，再去看Laplace-Beltrami算子。文献[4]的标题就是The Laplacian on a Riemannian Manifold，看起来很符合我的痛点，可惜前置知识太多，一时半会看不完。这里再挖一个坑，等到明年的今天，希望我可以弄清楚这三个问题。</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] <a href="https://web.cse.ohio-state.edu/~dey.8/paper/laplace/laplace.pdf" target="_blank" rel="noopener">Convergence, Stability, and Discrete Approximation of Laplace Spectra</a></p>
+<p>[2] <a href="http://people.cs.uchicago.edu/~niyogi/papersps/eigconv_Feb15.pdf" target="_blank" rel="noopener">Convergence of Laplacian Eigenmaps</a></p>
+<p>[3] <a href="http://www2.imm.dtu.dk/projects/manifold/Papers/Laplacian.pdf" target="_blank" rel="noopener">Laplacian Eigenmaps for Dimensionality Reduction and DataRepresentation</a></p>
+<p>[4] <a href="https://www.cambridge.org/core/books/laplacian-on-a-riemannian-manifold/56F18C2AB0A765A91892E164079A3B74" target="_blank" rel="noopener">The Laplacian on a Riemannian Manifold An Introduction to Analysis on Manifolds</a></p>
 
     </div>
 
@@ -351,10 +332,8 @@ L_i(\theta_i)=E_{(s,a,r,s')\sim U(D)}[(r+\gamma\max_{a'}Q(s',a';\theta_{i}^{-})-
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/DQN/" rel="tag"># DQN</a>
-              <a href="/tags/reinforcement-learning/" rel="tag"># reinforcement learning</a>
               <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
-              <a href="/tags/Q-Learning/" rel="tag"># Q-Learning</a>
+              <a href="/tags/gcn/" rel="tag"># gcn</a>
           </div>
 
         
@@ -362,11 +341,11 @@ L_i(\theta_i)=E_{(s,a,r,s')\sim U(D)}[(r+\gamma\max_{a'}Q(s',a';\theta_{i}^{-})-
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/dqn2.htm" rel="next" title="Deep Q-Learning 系列论文漫谈(二) 从Target Net和Experience replay聊起">
-      Deep Q-Learning 系列论文漫谈(二) 从Target Net和Experience replay聊起 <i class="fa fa-chevron-right"></i>
+    <a href="/rkhs.htm" rel="prev" title="再生核希尔伯特空间(RKHS)漫谈(一)：定义">
+      <i class="fa fa-chevron-left"></i> 再生核希尔伯特空间(RKHS)漫谈(一)：定义
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -427,7 +406,7 @@ L_i(\theta_i)=E_{(s,a,r,s')\sim U(D)}[(r+\gamma\max_{a'}Q(s',a';\theta_{i}^{-})-
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#写在前面的话"><span class="nav-number">1.</span> <span class="nav-text">写在前面的话</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q-Learning"><span class="nav-number">2.</span> <span class="nav-text">Q-Learning</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deep-Q-Learning"><span class="nav-number">3.</span> <span class="nav-text">Deep Q-Learning</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Loss-Function"><span class="nav-number">4.</span> <span class="nav-text">Loss Function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Target-Net-Experience-replay"><span class="nav-number">5.</span> <span class="nav-text">Target Net &#x2F; Experience replay</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Target-Net"><span class="nav-number">5.1.</span> <span class="nav-text">Target Net</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Experience-replay"><span class="nav-number">5.2.</span> <span class="nav-text">Experience replay</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可以参考的文献："><span class="nav-number">6.</span> <span class="nav-text">可以参考的文献：</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Graph-Laplacian的来历"><span class="nav-number">1.</span> <span class="nav-text">Graph Laplacian的来历</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Graph-Laplacian谱的收敛性"><span class="nav-number">2.</span> <span class="nav-text">Graph Laplacian谱的收敛性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#part1"><span class="nav-number">2.1.</span> <span class="nav-text">part1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#part2"><span class="nav-number">2.2.</span> <span class="nav-text">part2</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">4.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

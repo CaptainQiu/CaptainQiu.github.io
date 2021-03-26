@@ -54,7 +54,7 @@
 <meta property="og:description" content="主要讨论拉连续普拉斯算子(Laplacian)的谱分解、特征函数和特征值与傅里叶变换之间的关系。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-09-11T08:29:05.000Z">
-<meta property="article:modified_time" content="2020-10-13T06:56:43.529Z">
+<meta property="article:modified_time" content="2021-03-25T09:50:01.128Z">
 <meta property="article:author" content="Captain Qiu">
 <meta property="article:tag" content="machine learning">
 <meta property="article:tag" content="gcn">
@@ -129,7 +129,7 @@
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
-        <p class="site-subtitle">learning room</p>
+        <p class="site-subtitle">理论误国，调参兴邦！</p>
   </div>
 
   <div class="site-nav-toggle">
@@ -226,7 +226,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-10-13 14:56:43" itemprop="dateModified" datetime="2020-10-13T14:56:43+08:00">2020-10-13</time>
+                <time title="Modified: 2021-03-25 17:50:01" itemprop="dateModified" datetime="2021-03-25T17:50:01+08:00">2021-03-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -382,7 +382,10 @@ L=F^{-1} \Lambda F</script><p>其中F矩阵就是离散傅里叶变换矩阵，�
 \end{matrix}
 \right]</script><p>同样的，当$N\rightarrow ∞$且$T\rightarrow0$的时候，一维离散拉普拉斯算子收敛至一维连续拉普拉斯算子。</p>
 <p>这章详细讨论了连续拉普拉斯算子和傅里叶变换之间的关系，在最后也简单推导了下离散傅里叶矩阵，下一章的核心内容就是理清Graph Laplacian和Laplacian之间的关系，既然拉普拉斯算子的特征函数可以构成傅里叶变换，那么图拉普拉斯算子凭什么也可以呢？</p>
-<h1 id="Graph-Laplacian"><a href="#Graph-Laplacian" class="headerlink" title="Graph Laplacian"></a>Graph Laplacian</h1><p>图拉普拉斯算子定义为 $L=D-A$，其中D为度矩阵，A为邻接矩阵。这样定义的核心想法是要在图上模拟连续的拉普拉斯算子，就是求某个节点周围邻居与其的二阶差分之和。如果图是一个规则的grid结构，也就是一个节点连接周围上下左右的四个节点，那么可以证明（需要读者自行寻找资料），当grid结构趋于无穷的时候，这种模拟二阶差分和的方式是收敛至连续拉普拉斯算子的。</p>
+<h1 id="Graph-Laplacian"><a href="#Graph-Laplacian" class="headerlink" title="Graph Laplacian"></a>Graph Laplacian</h1><p>图拉普拉斯算子定义为 $L=D-A$，其中D为度矩阵，A为邻接矩阵。这样定义的核心想法是要在图上模拟连续的拉普拉斯算子，就是求某个节点周围邻居与其的二阶差分之和。现在很少有资料讲图拉普拉斯算子和连续拉普拉斯算子之间的联系，基本上都是这样的套路：</p>
+<p>因为连续的拉普拉斯算子的特征函数是傅里叶变换的基函数，所以，图上的拉普拉斯算子的特征向量就是离散傅里叶变换的基。</p>
+<p>这句话包含的信息量太大。首先，上面一节讨论的一位连续拉普拉斯算子是在欧式空间中的，它的离散形式比较简单，但是我们实际的数据假如处于高维空间的低维流形上，连续拉普拉斯算子的形式就变了，那么，它的离散形式该是什么样呢？再次，离散和连续lplacian的特征值和特征函数是什么样的关系，和我们期望的是一样的吗？</p>
+<p>这两个问题很难直接得到答案，因为这是一个研究方向，即针对离散拉普拉斯算子的收敛性做的研究，因为我数学也不是很好，这部分涉及到微分流形、函数的收敛性以及算子的特征函数等内容，理论性太强，看的我头皮发麻，也是看个大概，后面一章会简单说说几篇论文和他们的思路。</p>
 <h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] <a href="https://www.math.ucla.edu/~tao/preprints/fourier.pdf" target="_blank" rel="noopener">Fourier Transform .TERENCE TAO</a></p>
 <p>[2] <a href="http://www.robots.ox.ac.uk/~sjrob/Teaching/SP/l7.pdf" target="_blank" rel="noopener">Lecture 7-The Discrete Fourier Transform</a></p>
 
@@ -485,7 +488,7 @@ L=F^{-1} \Lambda F</script><p>其中F矩阵就是离散傅里叶变换矩阵，�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
