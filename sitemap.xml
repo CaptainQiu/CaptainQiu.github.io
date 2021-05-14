@@ -2,9 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://qddmj.cn/note/kdd_meituan.html</loc>
+    
+    <lastmod>2021-05-14T09:40:56.653Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://qddmj.cn/about/index.html</loc>
+    
+    <lastmod>2021-05-14T09:34:11.684Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://qddmj.cn/gcn-laplacian3.htm</loc>
     
-    <lastmod>2021-03-26T02:05:34.752Z</lastmod>
+    <lastmod>2021-04-06T02:32:32.437Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://qddmj.cn/rkhs2.htm</loc>
+    
+    <lastmod>2021-03-30T02:29:11.398Z</lastmod>
     
   </url>
   
@@ -26,13 +47,6 @@
     <loc>https://qddmj.cn/gcn-laplacian.htm</loc>
     
     <lastmod>2020-09-15T02:17:26.891Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://qddmj.cn/about/index.html</loc>
-    
-    <lastmod>2020-09-13T03:26:59.791Z</lastmod>
     
   </url>
   

@@ -46,22 +46,22 @@
   };
 </script>
 
-  <meta name="description" content="AdaBoost、提升树和GBDT的联系和区别有哪些？特别是提升树和梯度提升树的核心区别在什么地方？">
+  <meta name="description" content="讨论Mercer理论及其相关证明,通过Mercer理论更加深入了解RKHS和SVM">
 <meta property="og:type" content="article">
-<meta property="og:title" content="xgboost理解(1) 从AdaBoost到GBDT的变迁">
-<meta property="og:url" content="https://qddmj.cn/xgboost.htm">
+<meta property="og:title" content="再生核希尔伯特空间(RKHS)漫谈(二)：Mecer&#39;s Theorem">
+<meta property="og:url" content="https://qddmj.cn/rkhs2.htm">
 <meta property="og:site_name" content="Our Home">
-<meta property="og:description" content="AdaBoost、提升树和GBDT的联系和区别有哪些？特别是提升树和梯度提升树的核心区别在什么地方？">
+<meta property="og:description" content="讨论Mercer理论及其相关证明,通过Mercer理论更加深入了解RKHS和SVM">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-06-08T11:41:05.000Z">
-<meta property="article:modified_time" content="2020-06-23T02:23:08.371Z">
+<meta property="article:published_time" content="2021-03-28T11:35:05.000Z">
+<meta property="article:modified_time" content="2021-03-30T02:29:11.398Z">
 <meta property="article:author" content="Captain Qiu">
 <meta property="article:tag" content="machine learning">
-<meta property="article:tag" content="gbdt">
-<meta property="article:tag" content="xgboost">
+<meta property="article:tag" content="RKHS">
+<meta property="article:tag" content="SVM">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://qddmj.cn/xgboost.htm">
+<link rel="canonical" href="https://qddmj.cn/rkhs2.htm">
 
 
 <script id="page-configurations">
@@ -73,7 +73,7 @@
   };
 </script>
 
-  <title>xgboost理解(1) 从AdaBoost到GBDT的变迁 | Our Home</title>
+  <title>再生核希尔伯特空间(RKHS)漫谈(二)：Mecer's Theorem | Our Home</title>
   
 
 
@@ -197,7 +197,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
-    <link itemprop="mainEntityOfPage" href="https://qddmj.cn/xgboost.htm">
+    <link itemprop="mainEntityOfPage" href="https://qddmj.cn/rkhs2.htm">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -210,7 +210,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          xgboost理解(1) 从AdaBoost到GBDT的变迁
+          再生核希尔伯特空间(RKHS)漫谈(二)：Mecer's Theorem
         </h1>
 
         <div class="post-meta">
@@ -220,14 +220,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-06-08 19:41:05" itemprop="dateCreated datePublished" datetime="2020-06-08T19:41:05+08:00">2020-06-08</time>
+              <time title="Created: 2021-03-28 19:35:05" itemprop="dateCreated datePublished" datetime="2021-03-28T19:35:05+08:00">2021-03-28</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-23 10:23:08" itemprop="dateModified" datetime="2020-06-23T10:23:08+08:00">2020-06-23</time>
+                <time title="Modified: 2021-03-30 10:29:11" itemprop="dateModified" datetime="2021-03-30T10:29:11+08:00">2021-03-30</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -235,14 +235,14 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/xgboost/" itemprop="url" rel="index">
-                    <span itemprop="name">xgboost</span>
+                  <a href="/categories/RKHS/" itemprop="url" rel="index">
+                    <span itemprop="name">RKHS</span>
                   </a>
                 </span>
             </span>
 
           
-            <span id="/xgboost.htm" class="post-meta-item leancloud_visitors" data-flag-title="xgboost理解(1) 从AdaBoost到GBDT的变迁" title="Views">
+            <span id="/rkhs2.htm" class="post-meta-item leancloud_visitors" data-flag-title="再生核希尔伯特空间(RKHS)漫谈(二)：Mecer's Theorem" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -257,13 +257,13 @@
       </span>
       <span class="post-meta-item-text">Valine: </span>
     
-    <a title="valine" href="/xgboost.htm#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/xgboost.htm" itemprop="commentCount"></span>
+    <a title="valine" href="/rkhs2.htm#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/rkhs2.htm" itemprop="commentCount"></span>
     </a>
   </span>
   
   
-            <div class="post-description">AdaBoost、提升树和GBDT的联系和区别有哪些？特别是提升树和梯度提升树的核心区别在什么地方？</div>
+            <div class="post-description">讨论Mercer理论及其相关证明,通过Mercer理论更加深入了解RKHS和SVM</div>
 
         </div>
       </header>
@@ -274,75 +274,77 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>提到xgboost，大家都会说，xgboost是gbdt的一种高效实现。简而言之，它的指导思想和大的框架是gbdt(Gradient Boosting Decision Tree)，然后在各个步骤做了不同的优化，提升了训练的速度和精度。但是我看了论文后觉得，xgboost的改动还是很大的，因为修改了损失函数，并且使用了不同的角度去理解损失函数，不能完全看做是gbdt的一种实现，已经可以叫做另外一种算法了。</p>
-<h2 id="AdaBoost"><a href="#AdaBoost" class="headerlink" title="AdaBoost"></a>AdaBoost</h2><p>首先说说提升算法。提升方法中最具代表性的是AdaBoost。所谓提升方法，思想就是综合多个弱分类器的结果，得到一个近似强分类器的结果。</p>
-<p>举例来说，假设存在一组训练样本：</p>
+        <p>上一章讨论了RKHS相关的定义，我们知道了只要找到一个正定的核函数(positive define kernel)，那么一定有这样一个希尔伯特空间，里面的所有元素可以用$f(x)=\langle f(\cdot),k(\cdot,x)\rangle  , \forall f\in \mathcal{H}$“再生”出来，利用这个性质可以让我们用核函数代替内积。</p>
+<p>现在我们准备深入RKHS看看。首先，我们有两条路可以证明核函数可以构成一个RKHS。</p>
+<ol>
+<li>Mercer’s Theorem</li>
+<li>Moore-Aronszajn’s Theorem</li>
+</ol>
+<p>这一章来证明第一个命题:Mecer’s Theorem。我们上一篇博客给出了核函数的概念，Mecer’s Theorem比核函数的现代定义出现得要早，因此Mercer理论中的核函数定义稍有不同，显得更为严格一些。Moore-Aronszajn’s Theorem是后来发展的，现代用的比较多，它的核函数定义更为宽松，更为一般。</p>
+<h1 id="Mercer’s-Theorem"><a href="#Mercer’s-Theorem" class="headerlink" title="Mercer’s Theorem:"></a>Mercer’s Theorem:</h1><p>设 $k$ 是$[a,b]\times[a,b]$上的连续、对称的实变函数，假设对所有的$f\in L_2([a,b])$，都有：</p>
 <script type="math/tex; mode=display">
-T=\{(x_1,y_1),(x_2,y_2),...,(x_n,y_n)\}</script><p>其中输入$x_i \in \mathcal{X} \subseteq \mathbf R^n$，输出$y_i \in \mathcal{Y}=\{-1,+1\}$。AdaBoost的做法是，训练$m$个轮次，每轮都训练出一个弱分类器$G_m(x)$，然后最终分类器$G(x)$是：</p>
+\int_a^b\int_a^bk(t,s)f(s)f(t)ds\ dt \ge 0. \tag{1}</script><p>设 $K$ 是以核函数 $k$ 为基础的积分算子，即:</p>
 <script type="math/tex; mode=display">
-\\f(x)=\sum_{m=1}^{M}{\alpha_mG_m(x)}
-\\   \ 
-\\G(x)={\rm sign} (f(x))</script><p>可以看见，最终分类器就是每一轮弱分类器的线性组合。然后AdaBoost告诉了我们如何去确定每一轮的$G_m(x)$和它对应的系数$\alpha_m$：通过每一轮的训练结果，将分错的样本赋予高的权重，在下一轮”重点”学习，相对的，分对的样本减小权重。然后根据本次的误差计算本次的系数。</p>
-<p>因此，AdaBoost的思想是通过修改每轮次训练样本的权重来训练出不同的弱分类器，然后根据其错误率来确定每个弱分类器在最终分类器中的”话语权”。</p>
-<h2 id="Boosting-Tree"><a href="#Boosting-Tree" class="headerlink" title="Boosting Tree"></a>Boosting Tree</h2><p>提升树是以决策树为基函数的提升算法，和AdaBoost相似的地方是，它也是一个加法模型，但是省去了系数，并且提升树是用来解决回归问题的，因为分类问题也可以通过拟合一个线性边界去解决，所以提升树也可以在稍作转换后用于分类问题。</p>
-<p>提升树类似AdaBoost，可以表示为一个加法模型：</p>
+(Kf)(t)=\int_a^bk(t,s)f(s)ds \tag{2}</script><p>设$\{\phi_n\},\{\lambda_n\}$是算子$K$的特征向量和特征函数，那么对$[a,b]$上所有的 $t$ 和 $s$ ，都有：</p>
 <script type="math/tex; mode=display">
-f_M(x)=\sum_{m=1}^MT(x;\Theta_m)</script><p>其中$T(x;\Theta_m)$表示决策树，$\Theta_m$为决策树的参数，$M$为树的个数。在回归问题上，提升树与AdaBoost有微妙的不同，我举个具体的例子，假设一个样本是$(x_0=3,y_0=1.5)$，那么:</p>
+k(t,s)=\sum_j\lambda_j\phi_j(t)\phi_j(s). \tag{3}</script><p>这个级数在$[a,b]\times[a,b]$上绝对收敛并且一致收敛。</p>
+<h1 id="Mercer’s-Theorem的证明"><a href="#Mercer’s-Theorem的证明" class="headerlink" title="Mercer’s Theorem的证明"></a>Mercer’s Theorem的证明</h1><p>在Mecer的原论文[3]中，这个证明十分复杂。感兴趣的读者可以去看看这篇1908年的数学论文。我没有耐心看完，当时找了很多资料，包括文献[4]，他们的证明大概分为两个步骤:</p>
+<p>1.证明$\sum_j\lambda_j\phi^2_j(s)$一致收敛至$k(s,s)$</p>
+<p>2.证明$\sum_j\lambda_j\phi_j(t)\phi_j(s)$一致收敛至$k(s,t)$</p>
+<p>第一个步骤所有资料包括原文都比较简明易懂，复杂的地方主要在第二步，原文花了很长的篇幅、构造了一些中间算子，才证明了它一致收敛，这个过程我看得很吃力，没有完全看懂。而文献[4]只是提了一下用Schwarz不等式就可以证明2，但没有详细说明。</p>
+<p>这个坑困扰了我一两周时间，我能查到的所有博客和StackExchange均没有给出令人信服的证明，比如这个<a href="https://math.stackexchange.com/questions/1609754/uniform-convergence-in-mercer-theorem-for-bounded-kernels" target="_blank" rel="noopener">Uniform convergence in Mercer Theorem for bounded kernels</a>；它们几乎都是证明到第一步就停了，第二步和我尝试利用Schwarz不等式得到的结论一样：</p>
 <script type="math/tex; mode=display">
-\begin{aligned}
-\\&f_0(x_0) =0
-\\&f_1(x_0)=1
-\\&f_2(x_0)=0.3
-\\&f_3(x_0)=0.15
-\\&f_M(x_0)=f_0+f_1+f_2+f_3=1.45
-\end{aligned}</script><p>为什么后续的学习器呈现出越来越小的趋势呢，是因为提升树的训练算法的特点造成的。我们把公式变换一下：</p>
+\sum_j|\lambda_j\phi_j(t)\phi_j(s)|\le k(s,s)^{1/2}k(t,t)^{1/2} \tag{4}</script><p>这个不等式只能说明左边的级数是收敛的，无法进一步说明它收敛到$k(t,s)$。</p>
+<p>直到我发现了Basic Class of Linear Operator[1]这本书，里面用Schwarz不等式详细证明了第二步，我觉得证明的很巧妙，有必要在这分享一下：</p>
+<p>设</p>
 <script type="math/tex; mode=display">
-\begin{aligned}
-    \\&f_0(x)=0
-    \\&f_m(x)=f_{m-1}+T(x;\Theta_m)\ \ ,\ \ m=1,2,...,M
-\end{aligned}</script><p>在第m步，给定当前模型$f_{m-1}(x)$，要求解:</p>
+    \tilde{k}(t,s)=\sum_j\lambda_j\phi_j(t)\phi_j(s) \tag{5}</script><p>显然，当固定t时，$\tilde{k}(t,s)$是关于s的连续函数，并且有：</p>
 <script type="math/tex; mode=display">
-\Theta_m=\arg \min_{\Theta_m}\sum_{i=1}^NL(y_i,f_{m-1}(x_i)+T(x_i;\Theta_m))</script><p>然后得到第m棵树的参数$\Theta_m$。回归问题一般都采用平方差损失函数:</p>
-<script type="math/tex; mode=display">
-L(y,f(x))=(y-f(x))^2</script><p>然后带入到提升树的损失函数中：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\\L(y,f_{m-1}(x)+T(x;\Theta_m))&=[y-f_{m-1}(x)-T(x;\Theta_m)]^2  
-\\&=[r-T(x;\Theta_m)]^2  
-\end{aligned}</script><p>这里:</p>
-<script type="math/tex; mode=display">
-r=y-f_{m-1}(x)</script><p>也就是说，要最小化L，就要让待求的树模型$T(x;\Theta_m)$去拟合值r，而r实际上是当前给定总模型$f_{m-1}(x)$的残差，因此每一轮要求的单个树模型实际上是在拟合上一轮总模型的残差，残差当然是越拟合越小的，这时候就可以结合上面的例子理解整个提升树的思想了。</p>
-<h2 id="GBDT"><a href="#GBDT" class="headerlink" title="GBDT"></a>GBDT</h2><p>对于提升树来说，它已经做得足够好了，但是让人觉得有瑕疵的地方是，只有损失函数是平方损失函数才能写成上面那种形式（虽然很多时候我们确实只用平方损失函数），如果能改进的更加通用一些，那么模型的适用性会更广泛。</p>
-<p>Freidman针对这个问题提出了GBDT算法。提升树中，其实我们每一轮是拟合上一轮总模型的残差，从直观上来看，损失函数每一步都越来越低，这种迭代方式特别像梯度下降法。而梯度下降法与拟合残差不一样的是，梯度下降每一步都是沿着损失函数下降最快的方向进行的，只是一个速度快慢的问题。</p>
-<p>我们把总模型$f_{m-1}(x)$整体看做是自变量，把$T(x;\Theta_m)$看做是自变量迭代的增量，将损失函数在$f_{m-1}$处用泰勒一阶展开:</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-L(f_m)&=L(f_{m-1}+T_m)    \\
-&\simeq L(f_{m-1})+L'(f_{m-1})T_m
-\end{aligned}</script><p>要使得$L(f_m)&lt;L(f_{m-1})$，可以令$\ \ T_m=-\alpha L’(f_{m-1})$</p>
-<p>那么迭代式可以写成：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-f_{m}&=f_{m-1}+T_m\\
-&=f_{m-1}+（-\alpha L'(f_{m-1})）    
-\end{aligned}</script><p>这是标准的梯度下降法，那么总模型可以看成是从$f_0$开始的梯度下降迭代过程：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\\f_M(x)&=\sum_{m=1}^M T(x;\Theta_m)
-\\&=f_0+（-\alpha L'(f_0)）+（-\alpha  L'(f_1)）+...+（-\alpha  L'(f_{m-1})）
-\end{aligned}</script><p>因此我们每一步计算得到当前的$L’(f_{m-1})$，然后用当前待求的树模型$T(x;\Theta_m)$去拟合这个梯度的负数即可。</p>
-<script type="math/tex; mode=display">
- L'(f_{m-1}(x_i))=[\frac{\partial L(y_i,f_{m-1}(x_i))}{\partial f_{m-1}(x_i)}]</script><p>当损失函数L为平方损失函数的时候，这个梯度恰好为残差$y_i-f_{m-1}(x_i)$。因此提升树是GBDT的一种特殊情况，这样一来，GBDT的适用范围就放的很大了，理论上可以解决所有具有一阶可导损失函数的有监督学习问题。</p>
-<h2 id="切分点、候选点、分箱"><a href="#切分点、候选点、分箱" class="headerlink" title="切分点、候选点、分箱"></a>切分点、候选点、分箱</h2><p>解决完算法核心思想问题，然后就要解决具体的操作问题了，如何去拟合每一个$T(x;\Theta_m)$。因为提升树和GBDT用的都CART树，因此每一轮拟合都可以看做是生成一棵CART树的过程。</p>
-<p>李航老师在《统计学习方法》中给出的方法是，以每个$x_i$作为切分点，切分后该区域的最优值为该区域$y_i$的平均值，然后遍历计算切分后的平方差，选取平方差最低的作为本次的切分点。</p>
-<blockquote>
-<p>详细见《统计学习方法》第二版 P81</p>
+\int_a^b[k(t,s)-\tilde{k}(t,s)]f(s) \ ds=(Kf)(t) -\sum_j\lambda_j\langle f,\phi_j \rangle\phi_j(t) \tag{6}</script><blockquote>
+<p>注：$\int_a^b\tilde{k}(t,s)f(s)ds=\int_a^b\sum_j\lambda_j\phi_j(t)\phi_j(s)f(s)ds=\sum_j\lambda_j\phi_j(t)\int_a^b\phi_j(s)f(s)ds$</p>
 </blockquote>
-<p>然后GBDT在生成每一棵树的时候都要做这样大量的计算，当样本特别多的时候，给样本排序也很耗时，导致算法速度很慢，可以发现这一步也有很多可以优化的地方。分箱是一种减少计算量的离散化手段，一般是以分位点作为分箱的依据，这一步又可以做很多事情。</p>
-<h2 id="正则化"><a href="#正则化" class="headerlink" title="正则化"></a>正则化</h2><p>除了CART树自带的剪枝算法，其实在提升算法层面上，还可以有一系列的正则化方法可以使用。比如随机森林的列采样等等。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>XGBoost在GBDT的基础上做了进一步的细化和优化，包括从损失函数到CART树的生成策略都做了优化，尤其是在损失函数的定义上做了较大改动，下一章会详细探讨XGBoost的相关原理。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>李航《统计学习方法》</p>
-<p>如有疑问和见解请留言~</p>
+<p>对于公式(6)，做如下讨论：</p>
+<p>1.假设$f\in \mathbf{Ker}\  K=\mathbf{Im}\  K^{\perp}$ ，那么$Kf=0$；显然$\phi_j\in \mathbf{Im}\ K$，由正交补的定义可知，$\langle f,\phi_j \rangle=0$；那么公式(6)右边等于0</p>
+<p>2.假设$f\in \mathbf{Ker} \ K^{\perp}=\mathbf{Im}\ K$，那么根据紧自伴算子谱理论有$f=\sum_i\alpha_i\phi_i$，带入公式(6)右边：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+(Kf)(t) -\sum_j\lambda_j\langle f,\phi_j \rangle\phi_j(t) 
+=\\
+\sum_i\alpha_i\lambda_i\phi_i(t) - \sum_j\lambda_j\langle \sum_i\alpha_i\phi_i,\phi_j \rangle\phi_j(t) =\\
+\sum_i\alpha_i\lambda_i\phi_i(t) - \sum_j\lambda_j\sum_i\langle\alpha_i\phi_i,\phi_j \rangle\phi_j(t) =\\
+\sum_i\alpha_i\lambda_i\phi_i(t) - \sum_j\lambda_j\alpha_j\phi_j(t) =0\\
+\end{aligned}</script><p>可见公式(6)右边仍然为0。<br>综合上述1、2两点可知，对于所有的$f\in \mathcal{H}=(\mathbf{Ker} \ K^{\perp}\oplus\mathbf{Ker} \ K)$，公式(6)右边等于0恒成立。再进行一些补充讨论（利用Dini’S Theorem）就能得出公式(3)是一致收敛的。</p>
+<blockquote>
+<p>其实Mercer理论和它的证明都涉及到一个很重要的理论：算子的谱理论，尤其是紧自伴算子的谱理论。这个理论在之前讨论Laplacian的时候也起到了很重要的作用，这部分内容可以参考的资料很多，不再详述。</p>
+</blockquote>
+<h1 id="由Mercer理论看RKHS"><a href="#由Mercer理论看RKHS" class="headerlink" title="由Mercer理论看RKHS"></a>由Mercer理论看RKHS</h1><p>从Mercer理论出发，我们可以推导出RKHS。</p>
+<p>算子$K$是$\mathcal{H}$上的紧自伴算子，由谱理论可知，它的特征函数系$\{\phi_n\}$构成了一个<strong>标准正交系(Orthonormal System)</strong>，特别注意的是，正交系非正交基(Orhonormal basis)。正交基可以表示空间$\mathcal{H}$上的所有元素，但是正交系还不行。除非算子$K$同时是<strong>单射</strong>的，$\{\phi_n\}$才是$\mathcal{H}$的一个标准正交基[5]。Mercer理论中的积分算子$K$显然没有要求是单射的。</p>
+<p>设</p>
+<script type="math/tex; mode=display">
+\mathcal{H'} := \text{span}\{\sum_i\alpha_i\phi_i : \alpha_i \in \mathcal{l^2}\} \tag{7}</script><p>仅通过上述条件，推不出$\mathcal{H’}$是希尔伯特空间，并且有$\mathcal{H’}    \subseteq\mathcal{H}$。当且仅当$K$是紧自伴、单射算子时，$\mathcal{H’}=\mathcal{H}$。因此剩下的重要工作是，使用完备性定义证明$\mathcal{H’}$是完备的内积空间，即希尔伯特空间。这一段证明属于细活，这里不再详述。</p>
+<p>在此基础之上，设</p>
+<script type="math/tex; mode=display">
+f=\sum\alpha_j\phi_j \ \in \mathcal{H'}  ,\ \ g=\sum\beta_j\phi_j \ \in \mathcal{H'} \tag{8}</script><p>我们在$\mathcal{H’}$上定义内积:</p>
+<script type="math/tex; mode=display">
+\langle f,g \rangle_{\mathcal{H'}}=\sum\frac{ \alpha_j\beta_j}{\lambda_j} \tag{9}</script><p>由Mercer定理公式(3)，我们固定$s$:</p>
+<script type="math/tex; mode=display">
+k(\cdot,s)=\sum_j\lambda_j\phi_j(s)\phi_j(\cdot) \tag{10}</script><p>显然一元函数$k(\cdot,s)\in\mathcal{H’}$。那么根据我们定义的内积可得:</p>
+<script type="math/tex; mode=display">
+\langle k(\cdot,t),k(\cdot,s)\rangle_{\mathcal{H'}}=\sum\frac{\lambda_j\phi(t)\cdot\lambda_j\phi(s)}{\lambda_j}=\sum\lambda_j\phi(t)\phi(s)=k(t,s)</script><p>并且对于$\forall f(\cdot)=\sum\alpha_j\phi_j(\cdot)\in\mathcal{H’}$，都有（固定$s$）:</p>
+<script type="math/tex; mode=display">
+\langle f(\cdot),k(\cdot,s)\rangle_{\mathcal{H'}}=\sum\frac{\alpha_j\lambda_j\phi(s)}{\lambda_j}=\sum\alpha_j\phi(s)=f(s)</script><p>因此$\mathcal{H’}$是RKHS。然后核函数$k(t,s)$的确表示$\mathcal{H’}$上的内积。</p>
+<h1 id="应用到SVM上"><a href="#应用到SVM上" class="headerlink" title="应用到SVM上"></a>应用到SVM上</h1><p>回到SVM上，设$\{x_n\}$是样本点，我们希望能找到一个$\Phi(\cdot)$将$x_i$映射到希尔伯特空间（特征空间），并且在这个特征空间上，映射后的内积可以表示为:</p>
+<script type="math/tex; mode=display">
+\langle \Phi(x_i),\Phi(x_j)\rangle_{\mathcal{H'}}=k(x_i,x_j)</script><p>很明显，如果给定一个核函数$k(t,s)$，那么$\Phi(x)=k(\cdot,x)$就是我们要找的映射。有了这些认识，我们再来回答上一章中提出的问题。</p>
+<p>特征映射$\Phi$将样本$x_i$映射到了特征空间$\mathcal{H’}$，根据公式(8)可知里面的元素均为函数，并且这些函数可以表示为一组函数的线性组合。因此，$\Phi(x_i)$将$x_i$映射为某一函数，特征空间$\mathcal{H’}$为函数空间,该空间的一组标准正交基是积分算子$K$的特征函数。特别的，如果$K$的特征函数系$\{\phi_n\}$是无穷的，那么特征空间$\mathcal{H’}$也就是无穷维特征空间。</p>
+<p>另外，实际操作中，我们一般将$\Phi(x)=\{…,\lambda_j\phi_j(x),…,\lambda_n\phi_n(x)\}$，略去基函数，写成等价的坐标形式。</p>
+<p>那么你应该对SVM的核技巧有具象化的了解了吧，非线性特征映射将样本映射到了一个函数空间，样本变成了一个个函数，这些函数可以写成关于基函数的坐标形式，他们的内积就是核函数。</p>
+<p>遗憾的是，$\mathcal{H’}$里面的函数实际代表的含义很难解释，尤其是当$\mathcal{H’}$是无穷维的时候。也许和神经网络模型一样，很多时候不用过分追求可解释性，毕竟调参兴邦、理论误国，只要效果有了，你怎么解释都是对的。</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] <a href="https://www.researchgate.net/publication/220026744_Basic_Classes_of_Linear_Operators" target="_blank" rel="noopener">Basic Class of Linear Operator第5章</a></p>
+<p>[2] <a href="https://en.wikipedia.org/wiki/Mercer%27s_theorem" target="_blank" rel="noopener">Wikipedia : Mercer’s Theorem</a></p>
+<p>[3] <a href="https://royalsocietypublishing.org/doi/10.1098/rsta.1909.0016" target="_blank" rel="noopener">Mercer理论原文。Mercer, J. (1909), “Functions of positive and negative type and their connection with the theory of integral equations”</a></p>
+<p>[4] <a href="https://www.amazon.com/Functional-Analysis-Peter-D-Lax/dp/0471556041" target="_blank" rel="noopener">Lax,Functional Analysis关于Mercer理论一节</a></p>
+<p>[5] <a href="https://books.google.com.hk/books?lr=&amp;id=AUlWAQAAQBAJ&amp;oi=fnd&amp;pg=PR13&amp;dq=linear+and+nonlinear+functional+analysis+with+applications&amp;ots=dMWm5YWTgu&amp;sig=sm9_y6Jd-YXOl_AWTdhKvpXTpUE&amp;redir_esc=y&amp;hl=zh-CN#v=onepage&amp;q=linear%20and%20nonlinear%20functional%20analysis%20with%20applications&amp;f=false" target="_blank" rel="noopener">linear and nonlinear functional analysis with applications 第4.10节</a></p>
 
     </div>
 
@@ -353,8 +355,8 @@ f_{m}&=f_{m-1}+T_m\\
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
-              <a href="/tags/gbdt/" rel="tag"># gbdt</a>
-              <a href="/tags/xgboost/" rel="tag"># xgboost</a>
+              <a href="/tags/RKHS/" rel="tag"># RKHS</a>
+              <a href="/tags/SVM/" rel="tag"># SVM</a>
           </div>
 
         
@@ -363,13 +365,10 @@ f_{m}&=f_{m-1}+T_m\\
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/dqn4.htm" rel="prev" title="Deep Q-Learning 系列论文漫谈(四) 错综复杂的误差(下)-误差汇总">
-      <i class="fa fa-chevron-left"></i> Deep Q-Learning 系列论文漫谈(四) 错综复杂的误差(下)-误差汇总
+    <a href="/gcn-laplacian3.htm" rel="prev" title="图卷积神经网络(GCN)深入理解(3) 图拉普拉斯算子的由来">
+      <i class="fa fa-chevron-left"></i> 图卷积神经网络(GCN)深入理解(3) 图拉普拉斯算子的由来
     </a></div>
-      <div class="post-nav-item">
-    <a href="/xgboost2.htm" rel="next" title="xgboost理解(2) xgboost思想剖析">
-      xgboost理解(2) xgboost思想剖析 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -430,7 +429,7 @@ f_{m}&=f_{m-1}+T_m\\
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#AdaBoost"><span class="nav-number">1.</span> <span class="nav-text">AdaBoost</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Boosting-Tree"><span class="nav-number">2.</span> <span class="nav-text">Boosting Tree</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GBDT"><span class="nav-number">3.</span> <span class="nav-text">GBDT</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切分点、候选点、分箱"><span class="nav-number">4.</span> <span class="nav-text">切分点、候选点、分箱</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#正则化"><span class="nav-number">5.</span> <span class="nav-text">正则化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Mercer’s-Theorem"><span class="nav-number">1.</span> <span class="nav-text">Mercer’s Theorem:</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mercer’s-Theorem的证明"><span class="nav-number">2.</span> <span class="nav-text">Mercer’s Theorem的证明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#由Mercer理论看RKHS"><span class="nav-number">3.</span> <span class="nav-text">由Mercer理论看RKHS</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#应用到SVM上"><span class="nav-number">4.</span> <span class="nav-text">应用到SVM上</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">5.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

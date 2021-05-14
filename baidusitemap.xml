@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://qddmj.cn/note/kdd_meituan.html</loc>
+    <lastmod>2021-05-14</lastmod>
+  </url>  <url>
     <loc>https://qddmj.cn/gcn-laplacian3.htm</loc>
-    <lastmod>2021-03-26</lastmod>
+    <lastmod>2021-04-06</lastmod>
+  </url>  <url>
+    <loc>https://qddmj.cn/rkhs2.htm</loc>
+    <lastmod>2021-03-30</lastmod>
   </url>  <url>
     <loc>https://qddmj.cn/gcn-laplacian2.htm</loc>
     <lastmod>2021-03-25</lastmod>
